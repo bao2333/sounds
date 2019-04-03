@@ -1,0 +1,51 @@
+<template>
+    <div>
+        <header>
+            <h3>全局设置</h3>
+            <div class="formJubao">
+                <div>
+                    被举报时间：
+                    <el-select v-model="form.jubao" placeholder="设置举报时间" size="mini">
+                        <el-option label="每周" value="0"></el-option>
+                        <el-option label="每月" value="1"></el-option>
+                    </el-select>
+                    （每周和每月的第一天，被举报次数从0开始计算）
+                </div>
+                <div class="two">
+                    被举报次数：
+                    <el-input v-model="form.count" size="mini" style="display:inline-block;width:200px;"></el-input>
+                    （请输入整数）
+                    
+                </div>
+            </div>
+        </header>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "userReport",
+        data(){
+            return{
+                form:{
+                    jubao:'',
+                    count:'',
+                }
+            }
+        }
+    }
+</script>
+
+<style scoped lang="less">
+    header{
+        h3{
+            text-align: center;
+        }
+        div.formJubao{
+            width: 50%;
+            .two{
+                margin-top: 15px;
+            }
+        }
+    }
+</style>

@@ -1,0 +1,48 @@
+<template>
+  <b-navbar toggleable="lg" :variant="getLayoutNavbarBg()" class="layout-navbar align-items-lg-center container-p-x">
+
+    <!-- Brand -->
+    <b-navbar-brand to="/">回到首页</b-navbar-brand>
+    <b-navbar-nav class="align-items-lg-center ml-auto">
+
+      <!-- Divider -->
+      <div class="nav-item d-none d-lg-block text-big font-weight-light line-height-1 opacity-25 mr-3 ml-1"></div>
+
+      <b-nav-item-dropdown :right="!isRTL" class="demo-navbar-user">
+        <template slot="button-content"  style="margin-right: 15px">
+            <span class="d-inline-flex flex-lg-row-reverse align-items-center align-middle">
+              <img src="../../static/imgs/logo@2x.jpg" alt class="d-block ui-w-30 rounded-circle" width="30" height="30"  style="margin-right: 15px">
+              <span class="px-1 mr-lg-2 ml-2 ml-lg-0" style="font-size: 14px;">张大帅的胖儿子</span>
+            </span>
+        </template>
+        <b-dd-item @click="userDialog=true;showUser()"><i class="ion ion-md-settings text-info"></i>  &nbsp;设置密码</b-dd-item>
+        <b-dd-item @click="logout()"><i class="ion ion-ios-log-out text-danger"></i> &nbsp; 退出登录</b-dd-item>
+      </b-nav-item-dropdown>
+    </b-navbar-nav>
+  </b-navbar>
+</template>
+
+<script>
+export default {
+  name: 'app-layout-navbar',
+
+  props: {
+    sidenavToggle: {
+      type: Boolean,
+      default: true
+    }
+  },
+
+  methods: {
+    toggleSidenav () {
+      this.layoutHelpers.toggleCollapsed()
+    },
+    getLayoutNavbarBg () {
+      return this.layoutNavbarBg
+    },
+    logout(){
+      this.$router.push({name:'userlogin'})
+    }
+  }
+}
+</script>

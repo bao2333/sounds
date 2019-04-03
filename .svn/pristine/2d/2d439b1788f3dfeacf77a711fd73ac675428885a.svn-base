@@ -1,0 +1,214 @@
+<template>
+    <div>
+        <section>
+            <h3>编辑官方消息</h3>
+            <div class="update_img">
+                <img :src="upadteImg" alt="" width="100" height="100" >
+                <div class="add_head" @click="selectIcon">
+                    <i class="el-icon-plus avatar-uploader-icon"></i>
+                </div>
+                <input accept="image/jpeg,image/png" ref="iconFile" @change="iconFileChange" type="file" name="icon" style="display: none"/>
+            </div>
+            <div class="edit" style="margin-top: 15px">
+                <quill-editor ref="textEditor" v-model="articleContent" :options="editorOption">
+                </quill-editor>
+            </div>
+            <el-button size="small" class="submitBtn">保存</el-button>
+        </section>
+        <hr>
+        <main>
+            <h3>消息列表</h3>
+            <article>
+                <div class="article_header">
+                    <p>觅语官方消息</p>
+                    <i class="el-icon-delete avatar-uploader-icon deleteIcon"></i>
+                </div>
+                <p  class="article_p">觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息</p>
+                <div>
+                    <p class="footer_p"> <i>2018-11-26 08:00</i> <span>查看详情</span></p>
+                </div>
+            </article>
+        </main>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "official",
+        data(){
+            return{
+                upadteImg:'',    //上传照片
+                articleContent:'',
+                editorOption: {
+                    modules: {
+                    toolbar: [
+                        ['bold', 'italic', 'underline', 'strike'],
+                        ['blockquote'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                        [{ 'script': 'sub' }, { 'script': 'super' }],
+                        [{ 'indent': '-1' }, { 'indent': '+1' }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        [{ 'color': ['#000'] }, { 'background': [] }],
+                        ['clean'],
+                        [{ 'align': [] },'image'],
+                    ]
+                    },
+                    placeholder:'请输入文章内容 ...'
+                },
+            }
+        },
+        created(){
+
+        },
+        methods:{
+             //上传图片
+            selectIcon(){
+            this.$refs.iconFile.click();
+            this.$refs.iconFile.value = null;   //相同图片上传第二次的时候会导致失效，每次上传之前清空value
+            },
+            iconFileChange(e){
+            let file = e.target.files[0];
+            if(!file.name.substring(file.name.lastIndexOf('.')) == '.png'){
+                return;
+            }
+            let reader = new FileReader();
+            reader.onload = e => {
+                let data = e.target.result;
+                //加载图片获取图片真实宽度和高度
+                let image = new Image();
+                image.onload= () =>{
+                let width = image.width;
+                let height = image.height;
+                if( width <400 || height<400){
+                    this.$notify.error({
+                    title: '操作提示',
+                    message: '图片大小必须大于400*400！'
+                    });
+                    return;
+                }
+
+                this.$api.oss.uuid(data => {
+                    new OSS.Wrapper({
+                    region: 'oss-cn-hangzhou',
+                    accessKeyId: data.accessKeyId,
+                    accessKeySecret: data.accessKeySecret,
+                    stsToken: data.securityToken,
+                    bucket: 'zhiyuan-hz'
+                    }).put(data.uuid,file).then(data => {
+                    console.log(data)
+                    this.form.img = `http://oss.dev.51zhiyuan.net/`+data.name;
+                    this.editor.img = `http://oss.dev.51zhiyuan.net/`+data.name;
+                    }).catch(function (err) {
+                    console.error('error: %j', err);
+                    });
+                },{});
+                };
+                image.src= data;
+            };
+            reader.readAsDataURL(file);
+            },
+        }
+    }
+</script>
+
+<style scoped lang="less">
+ @theme_color:rgb(255, 64, 129);
+section{
+    overflow: hidden;
+    h3{
+        text-align: center
+    }
+    .update_img{
+        overflow: hidden;
+        .add_head{
+            width: 150px;
+            height: 150px;
+            border:1px dashed #000;
+            float: left;
+            position: relative;
+            left: 50%;
+            margin-left: -75px;
+            cursor: pointer;
+            i{
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -12.5px;
+            margin-top: -12.5px;
+            font-size: 25px;
+            }
+        }
+    }
+    .edit{
+        width: 70%;
+        margin: 0 auto;
+    }
+    .submitBtn{
+        background-color:  @theme_color;
+        color: #fff;
+        margin: 30px auto;
+        display: block;
+        padding: 10px 30px;
+        font-size: 14px;
+    }
+    
+}
+main{
+    h3{
+        text-align: center;
+    }
+    article{
+        width: 800px;
+        height: 300px;
+        margin: 15px auto;
+        border:1px solid #ccc;
+       .article_header{
+            border-bottom:1px solid #ccc;
+           p{
+               display: inline-block;
+               line-height: 50px;
+               margin-bottom: 0;
+               font-size: 20px;
+               margin-left: 15px;
+           }
+           .deleteIcon{
+               float:right;
+               line-height: 50px;
+               font-size: 26px;
+               margin-right: 15px;
+               cursor: pointer;
+           }
+           .deleteIcon:hover{
+               color: @theme_color
+           }
+       } 
+       .article_p{
+            height: 150px;
+            padding: 20px;
+       }
+      div{
+           p.footer_p{
+           padding: 10px;
+           margin-bottom: 0;
+           overflow: hidden;
+          i{
+            line-height: 50px;
+            margin-left: 15px;
+          }
+           span{
+               border:1px solid #ccc;
+               padding: 10px 15px;
+               float:right;
+               margin-right: 15px;
+               border-radius: 5px;
+               cursor: pointer;
+           }
+           span:hover{
+               background-color: @theme_color;
+               color: #fff;
+           }
+       }
+      }
+    }
+}
+</style>

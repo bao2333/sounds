@@ -1,0 +1,83 @@
+<template>
+    <div>
+        <header>
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item :to="{  }">启动页管理</el-breadcrumb-item>
+                <el-breadcrumb-item class="now_page">引导页</el-breadcrumb-item>
+            </el-breadcrumb>
+        </header>
+        <section>
+            <h4>引导页</h4>
+            <div class="imgItem" v-for="(item,index) in imgData" :key="index">
+                <!-- <div class="add_head" @click="selectIcon">
+                    <img :src="$oss.url+editorImg" alt width="200" >
+                    <i class="el-icon-plus avatar-uploader-icon" v-show="plusShow"></i>
+                </div>
+                <input
+                    accept="image/jpeg, image/png"
+                    ref="iconFile"
+                    @change="iconFileChange"
+                    type="file"
+                    name="icon"
+                    style="display: none"
+                > -->
+            </div>
+            <div class="imgItem">
+                <i class="el-icon-plus avatar-uploader-icon" v-show="plusShow"></i>
+            </div>
+        </section>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "yindao",
+        data(){
+            return{
+                plusShow:true,
+                imgData:[],     //引导页数据
+            }
+        },
+        created(){
+            this.getList()
+        },
+        methods:{
+            getList(){
+                this.$api.qd.qd_img(data=>{
+                    this.imgData = data
+                },{
+                    type:1
+                })
+            }
+        }
+    }
+</script>
+
+<style scoped lang="less">
+section{
+    width: 60%;
+    margin: 0 auto;
+    overflow: hidden;
+    background: rgb(235, 230, 230);
+    h4{
+        text-align: center;
+    }
+    .imgItem{
+        width: 200px;
+        min-height: 200px;
+        background: #ccc;
+        float: left;
+        margin:15px 20px 0 0;
+        position: relative;
+        cursor: pointer;
+        i {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin-left: -12.5px;
+            margin-top: -12.5px;
+            font-size: 25px;
+        }
+    }
+}
+</style>

@@ -1,0 +1,116 @@
+<template>
+    <div>
+        <el-breadcrumb separator="/">
+            <el-breadcrumb-item :to="{ path: '/users/list' }" >用户管理</el-breadcrumb-item>
+            <el-breadcrumb-item class="now_page">新秀/大V</el-breadcrumb-item>
+        </el-breadcrumb>
+       <header>
+           <ul>
+                <li>
+                    <p>新秀数</p>
+                    <p>9999</p>
+                </li>
+                <li>
+                    <p>大V数</p>
+                    <p>9999</p>
+                </li>
+                <li>
+                    <p>总人数</p>
+                    <p>9999</p>
+                </li>
+                <li>
+                    <p>新秀：大V</p>
+                    <p>23%：77%</p>
+                </li>
+             </ul>
+       </header>
+       <hr>
+       <section>
+           <el-form ref="form" :model="form" label-width="120px">
+                <el-form-item label="当前新秀时间:">
+                    <p class="registerDate">注册 <span>7</span> 天</p>
+                </el-form-item>
+                 <el-form-item label="新秀时间设置:">
+                     <div class="time_set">
+                        <el-input v-model="form.timeSet" placeholder="请输入1-100的数字">天</el-input>
+                        <span>天</span>
+                     </div>
+                </el-form-item>
+                <el-button @click="editorNewDate()">修改</el-button>
+           </el-form>
+       </section>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "userNew",
+        data(){
+            return{
+                form:{
+                   timeSet:'',  //新秀时间设置
+                }
+            }
+        },
+        methods:{
+            // 修改新秀天数
+            editorNewDate(){
+
+            }
+        }
+    }
+</script>
+
+<style scoped lang="less">
+ @theme_color:rgb(255, 64, 129);
+ .now_page{
+     color: @theme_color;
+ }
+header{
+    width: 800px;
+    margin: 0 auto;
+    overflow: hidden;
+    ul{
+        li{
+           float: left; 
+           width: 200px;
+           font-size: 16px;
+           padding: 20px;
+           text-align: center;
+           p:nth-of-type(1){
+            border-bottom: 1px solid #ccc;
+            line-height: 50px;
+           }
+           p:nth-of-type(2){       
+               line-height: 50px;
+               color:  @theme_color;
+           }
+        }
+    }
+}
+section{
+    width: 430px;
+    margin: 30px auto;
+    .time_set{
+        position: relative;
+        span{
+            position: absolute;
+            right: 22px;
+            top: 0;
+        }
+    }
+    .registerDate{
+        margin-left: 15px;
+        span{
+            font-size: 16px;
+            color: @theme_color;
+        }
+    }
+    .el-button{
+        margin: 15px auto;
+        display: block;
+        background-color: @theme_color;
+        color: #fff
+    }
+}
+</style>

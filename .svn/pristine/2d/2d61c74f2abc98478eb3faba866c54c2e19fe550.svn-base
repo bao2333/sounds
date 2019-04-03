@@ -1,0 +1,107 @@
+<template>
+    <div>
+        <header>
+            <el-breadcrumb separator="/">
+                <el-breadcrumb-item :to="{ path: '/information/official' }" >官方消息</el-breadcrumb-item>
+                <el-breadcrumb-item class="now_page">推动活动</el-breadcrumb-item>
+            </el-breadcrumb>
+        </header>
+        <main>
+            <h3>消息列表</h3>
+            <article>
+                <div class="article_header">
+                    <p>觅语官方消息</p>
+                    <i class="el-icon-delete avatar-uploader-icon deleteIcon"></i>
+                </div>
+                <p  class="article_p">觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息觅语官方消息</p>
+                <div>
+                    <p class="footer_p"> <i>2018-11-26 08:00</i> <span @click="$router.push({name:'informationEditor'})">编辑动态</span></p>
+                </div>
+            </article>
+            <el-button class="add_article" @click="$router.push({name:'informationAdd'})">新增动态</el-button>
+        </main>
+    </div>
+</template>
+
+<script>
+import * as OSS from 'ali-oss'
+    export default {
+        name: "activity",
+        data(){
+            return{
+              
+            }
+        },
+        methods:{
+       
+        }
+    }
+</script>
+
+<style scoped lang="less">
+ @theme_color:rgb(255, 64, 129);
+main{
+    h3{
+        text-align: center;
+    }
+    .add_article{
+        display: block;
+        margin: 15px auto;
+        background-color: @theme_color;
+        color: #fff;
+    }
+    article{
+        width: 800px;
+        height: 300px;
+        margin: 15px auto;
+        border:1px solid #ccc;
+       .article_header{
+            border-bottom:1px solid #ccc;
+           p{
+               display: inline-block;
+               line-height: 50px;
+               margin-bottom: 0;
+               font-size: 20px;
+               margin-left: 15px;
+           }
+           .deleteIcon{
+               float:right;
+               line-height: 50px;
+               font-size: 26px;
+               margin-right: 15px;
+               cursor: pointer;
+           }
+           .deleteIcon:hover{
+               color: @theme_color
+           }
+       } 
+       .article_p{
+            height: 150px;
+            padding: 20px;
+       }
+      div{
+           p.footer_p{
+           padding: 10px;
+           margin-bottom: 0;
+           overflow: hidden;
+          i{
+            line-height: 50px;
+            margin-left: 15px;
+          }
+           span{
+               border:1px solid #ccc;
+               padding: 10px 15px;
+               float:right;
+               margin-right: 15px;
+               border-radius: 5px;
+               cursor: pointer;
+           }
+           span:hover{
+               background-color: @theme_color;
+               color: #fff;
+           }
+       }
+      }
+    }
+}
+</style>

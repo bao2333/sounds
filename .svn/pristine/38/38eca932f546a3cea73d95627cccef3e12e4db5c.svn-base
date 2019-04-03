@@ -1,0 +1,161 @@
+<template>
+  <div>
+    <el-breadcrumb separator="/">
+      <el-breadcrumb-item :to="{ path: '/users/list' }" >用户管理</el-breadcrumb-item>
+      <el-breadcrumb-item class="now_page">头像设置</el-breadcrumb-item>
+    </el-breadcrumb>
+    <header>
+      <h3>默认头像</h3>
+    </header>
+    <section>
+      <transition-group name="fade">
+        <div class="section_box" v-for="(item,index) in heads" :key="index">
+          <img :src="item.url" alt="">
+          <i class="ion ion-md-close align-middle" @click="close_head(index)"></i>
+        </div>
+
+      </transition-group>
+      <img :src="editor.img" alt="" width="100" height="100" >
+      <div class="add_head" @click="selectIcon">
+        <i class="el-icon-plus avatar-uploader-icon"></i>
+      </div>
+      <input accept="image/jpeg,image/png" ref="iconFile" @change="iconFileChange" type="file" name="icon" style="display: none"/>
+    </section>
+  </div>
+</template>
+
+<script>
+  import * as OSS from 'ali-oss'
+    export default {
+        name: "userHead",
+      data(){
+          return{
+            editor:{
+              img:''
+            },
+            heads:[
+              {
+                id:'1',
+                url:"../../../static/imgs/head.jpg"
+              },{
+                id:'2',
+                url:"../../../static/imgs/image3@2x.png"
+              },{
+                id:'3',
+                url:"../../../static/imgs/image4@2x.png"
+              },{
+                id:'4',
+                url:"../../../static/imgs/image6@2x.png"
+              }
+            ]
+          }
+      },
+      methods:{
+        close_head(i){
+          this.heads.splice(i,1)
+        },
+        //上传图片
+        selectIcon(){
+          this.$refs.iconFile.click();
+          this.$refs.iconFile.value = null;   //相同图片上传第二次的时候会导致失效，每次上传之前清空value
+        },
+        iconFileChange(e){
+          let file = e.target.files[0];
+          if(!file.name.substring(file.name.lastIndexOf('.')) == '.png'){
+            return;
+          }
+          let reader = new FileReader();
+          reader.onload = e => {
+            let data = e.target.result;
+            //加载图片获取图片真实宽度和高度
+            let image = new Image();
+            image.onload= () =>{
+              let width = image.width;
+              let height = image.height;
+              if( width <400 || height<400){
+                this.$notify.error({
+                  title: '操作提示',
+                  message: '图片大小必须大于400*400！'
+                });
+                return;
+              }
+
+              this.$api.oss.uuid(data => {
+                new OSS.Wrapper({
+                  region: 'oss-cn-hangzhou',
+                  accessKeyId: data.accessKeyId,
+                  accessKeySecret: data.accessKeySecret,
+                  stsToken: data.securityToken,
+                  bucket: 'zhiyuan-hz'
+                }).put(data.uuid,file).then(data => {
+                  console.log(data)
+                  this.form.img = `http://oss.dev.51zhiyuan.net/`+data.name;
+                  this.editor.img = `http://oss.dev.51zhiyuan.net/`+data.name;
+                }).catch(function (err) {
+                  console.error('error: %j', err);
+                });
+              },{});
+            };
+            image.src= data;
+          };
+          reader.readAsDataURL(file);
+        },
+
+      }
+    }
+</script>
+
+<style scoped lang="less">
+  @theme_color:rgb(255, 64, 129);
+  header{
+    h3{
+      text-align: center;
+    }
+  }
+  .section_box{
+    position: relative;
+    float: left;
+    margin-right: 30px;
+    img{
+      width: 150px;
+      height: 150px;
+    }
+    i{
+      font-size: 24px;
+      position: absolute;
+      right:-12px;
+      top: -10px;
+      z-index: 99999;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      text-align: center;
+      background-color:@theme_color ;
+      color: #fff;
+      line-height: 22px;
+      cursor: pointer;
+    }
+    i:hover{
+      background-color: #cccccc;
+      color: #000;
+      border: 1px solid #000;
+    }
+  }
+  
+  .add_head{
+    width: 150px;
+    height: 150px;
+    border:1px dashed #ccc;
+    float: left;
+    position: relative;
+    cursor: pointer;
+    i{
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      margin-left: -12.5px;
+      margin-top: -12.5px;
+      font-size: 25px;
+    }
+  }
+</style>

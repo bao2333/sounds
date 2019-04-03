@@ -1,0 +1,94 @@
+<template>
+    <div>
+        <el-breadcrumb separator="/">
+            <el-breadcrumb-item :to="{ path: '/users/list' }" >用户管理</el-breadcrumb-item>
+            <el-breadcrumb-item class="now_page">个人主页</el-breadcrumb-item>
+        </el-breadcrumb>
+        <hr>
+        <section>
+            <aside>
+                <div class="head">
+                    <img src="../../../static/imgs/head.jpg" alt="" width="100" >
+                    <h4>白素贞</h4>
+                </div>
+            </aside>
+            <article>
+                 <el-table :data="tableData" style="width: 100%" border>
+                    <el-table-column label="发布时间" align="center">
+                        <template slot-scope="props">
+                            
+                        </template>
+                    </el-table-column>
+                    <el-table-column prop="name" label="文字内容" align="center"></el-table-column>
+                    <el-table-column label="媒体内容" align="center">
+                        <template slot-scope="props">
+                            
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作" align="center">
+                        <template slot-scope="props">
+                            <el-button type="delete" size="mini" @click="deleteCol">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </article>
+        </section>
+    </div>
+</template>
+
+<script>
+export default {
+  name: "userHome",
+  data() {
+    return {
+      tableData: [] //列表
+    };
+  },
+  created() {},
+  methods: {
+    // 删除
+    deleteCol() {
+      this.$confirm("确定删除吗?", "提示", {
+        confirmButtonText: "狠心删除",
+        cancelButtonText: "点错了",
+        type: "warning"
+      })
+        .then(() => {
+          this.$notify({
+            type: "success",
+            message: "删除成功!"
+          });
+        })
+        .catch(() => {
+          this.$notify({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
+    }
+  }
+};
+</script>
+
+<style scoped lang="less">
+aside {
+  width: 200px;
+  float: left;
+  div.head {
+    width: 150px;
+    height: auto;
+    border: 1px solid #ccc;
+    padding: 15px;
+    text-align: center;
+    h4 {
+      margin-top: 15px;
+      margin-bottom: 0;
+    }
+  }
+}
+article {
+  width: calc(100% - 200px);
+  display: block;
+  float: left;
+}
+</style>

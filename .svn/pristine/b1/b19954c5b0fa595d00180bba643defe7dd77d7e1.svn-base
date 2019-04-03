@@ -1,0 +1,49 @@
+import Layout2 from '@/layout/Layout2'
+
+export default [{
+  path: '/set',
+  component: Layout2,
+  children: [{
+    path: 'about',
+    name:'setAbout',
+    meta:{
+      title:'关于我们'
+    },
+    component: resolve => require(['@/view/set/about'],resolve)
+  },{
+    path: 'editorAbout',
+    name: 'editorAbout',
+    meta: {
+      title: '编辑关于我们'
+    },
+    component: resolve => require(['@/view/set/editorAbout'], resolve)
+    },{
+    path: 'account',
+    name:'setAccount',
+    meta:{
+      title:'账号管理'
+    },
+    component: resolve => require(['@/view/set/account'],resolve)
+  },{
+    path: 'opinion',
+    name:'setOpinion',
+    meta:{
+      title:'意见反馈'
+    },
+    component: resolve => require(['@/view/set/opinion'],resolve)
+  },{
+    path: 'privacy',
+    name:'setPrivacy',
+    meta:{
+      title:'隐私和协议'
+    },
+    component: resolve => require(['@/view/set/privacy'],resolve)
+  },{
+    path: 'update',
+    name:'setUpdate',
+    meta:{
+      title:'升级维护'
+    },
+    component: resolve => require(['@/view/set/update'],resolve)
+  },]
+}]

@@ -1,0 +1,193 @@
+<template>
+    <div>
+        <el-breadcrumb separator="/">
+            <el-breadcrumb-item :to="{ name:'' }" >财务管理</el-breadcrumb-item>
+            <el-breadcrumb-item class="now_page">财务账单</el-breadcrumb-item>
+        </el-breadcrumb>
+        <header>
+            <!-- <el-date-picker v-model="dateTime" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" class="date_time" size="mini"></el-date-picker> -->
+            <div class="door">
+                <p>当前提现手续费： <span>{{ lowMoney.pushMoney }}</span> %</p>
+                <p>当前提现门槛： <span>{{ lowMoney.minimumWithdrawalAmount }}</span> ≤金币</p>
+            </div>
+        </header>
+        <section>
+            <table border="1">
+                <tr >
+                    <th>用户累加账单</th>
+                    <th>历史总计</th>
+                    <th>
+                       <el-date-picker v-model="dateTime" type="daterange"
+                       range-separator="至"
+                       start-placeholder="开始日期"
+                       end-placeholder="结束日期"
+                       value-format="yyyy-MM-dd"
+                       class="date_time" @change="changeDate"
+                       size="mini"></el-date-picker>
+                    </th>
+                    <th>单位</th>
+                </tr>
+                <tr >
+                    <td>总充值数</td>
+                    <td>{{ tableData.allRecharge }}</td>
+                    <td>{{ arrData.allRecharge }}</td>
+                    <td>元</td>
+                </tr>
+                <tr >
+                    <td>支付宝充值</td>
+                    <td>{{ tableData.zfbRecharge }}</td>
+                    <td>{{ arrData.zfbRecharge }}</td>
+                    <td>元</td>
+                </tr>
+                <tr >
+                    <td>微信充值</td>
+                    <td>{{ tableData.wxRecharge }}</td>
+                    <td>{{ arrData.wxRecharge }}</td>
+                    <td>元</td>
+                </tr>
+                <tr >
+                    <td>总消费</td>
+                    <td>{{ tableData.aLLConsumption }}</td>
+                    <td>{{ arrData.aLLConsumption }}</td>
+                    <td>金币</td>
+                </tr>
+                <tr >
+                    <td>商城购买语音</td>
+                    <td>{{ tableData.buyVoice }}</td>
+                    <td>{{ arrData.buyVoice }}</td>
+                    <td>金币</td>
+                </tr>
+                <tr >
+                    <td>实时聊天</td>
+                    <td>{{ tableData.liveChat }}</td>
+                    <td>{{ arrData.liveChat }}</td>
+                    <td>金币</td>
+                </tr>
+                <tr >
+                    <td>预约聊天</td>
+                    <td>{{ tableData.appointmentChat }}</td>
+                    <td>{{ arrData.appointmentChat }}</td>
+                    <td>金币</td>
+                </tr>
+                <tr >
+                    <td>所有收益</td>
+                    <td>{{ tableData.aLLIncome }}</td>
+                    <td>{{ arrData.aLLIncome }}</td>
+                    <td>金币</td>
+                </tr>
+                <tr >
+                    <td>商城收益</td>
+                    <td>{{ tableData.mallIncome }}</td>
+                    <td>{{ arrData.mallIncome }}</td>
+                    <td>金币</td>
+                </tr>
+                <tr >
+                    <td>即时聊天收益</td>
+                    <td>{{ tableData.liveChatCollection }}</td>
+                    <td>{{ arrData.liveChatCollection }}</td>
+                    <td>金币</td>
+                </tr>
+                <tr >
+                    <td>预约聊天收益</td>
+                    <td>{{ tableData.bookingChatIncome }}</td>
+                    <td>{{ arrData.bookingChatIncome }}</td>
+                    <td>金币</td>
+                </tr>
+                <tr >
+                    <td>所有提现</td>
+                    <td>{{ tableData.allWithdrawalTotal }}</td>
+                    <td>{{ arrData.allWithdrawalTotal }}</td>
+                    <td>元</td>
+                </tr>
+                <tr >
+                    <td>支付宝提现</td>
+                    <td>{{ tableData.zfbWithdrawalTotal }}</td>
+                    <td>{{ arrData.zfbWithdrawalTotal }}</td>
+                    <td>元</td>
+                </tr>
+                <tr >
+                    <td>微信提现</td>
+                    <td>{{ tableData.wxWithdrawalTotal }}</td>
+                    <td>{{ arrData.wxWithdrawalTotal }}</td>
+                    <td>元</td>
+                </tr>
+            </table>
+        </section>
+    </div>
+</template>
+
+<script>
+    export default {
+        name: "caiwuCard",
+        data(){
+            return{
+                dateTime:'',    //时间搜索
+                tableData:{},
+                arrData:[],     //选择时间赋值数据
+                lowMoney:{}     //当前手续费和最低提现
+            }
+        },
+        created(){
+            this.showList();
+        },
+        methods:{
+            showList(){
+                this.$api.money.caiwu_card(data=>{
+                    this.tableData = data
+                },{
+                    startTime:this.dateTime==''?null:this.dateTime[0],
+                    endTime:this.dateTime==''?null:this.dateTime[1]
+                })
+                // 当前手续费和最低提现
+                this.$api.money.low_money(data=>{
+                    this.lowMoney = data
+                })
+            },
+            changeDate(val){
+                 this.$api.money.caiwu_card(data=>{
+                    this.arrData = data
+                },{
+                    startTime:this.dateTime==''?null:this.dateTime[0],
+                    endTime:this.dateTime==''?null:this.dateTime[1]
+                })
+            }
+        }
+    }
+</script>
+
+<style scoped lang="less">
+header{
+    overflow: hidden;
+    margin-top: 15px;
+    .date_time{
+        width: 380px;
+    }
+    .door{
+        float: right;
+        p{
+            margin-bottom: 0;
+            font-size: 16px;
+            span{
+                color: red;
+            }
+        }
+    }
+}
+section{
+    margin-top: 15px;
+    table{
+        width: 100%;
+        tr{
+            th{
+                width: 25%;
+                text-align: center;
+                padding: 10px 15px;
+            }
+            td{
+                text-align: center;
+                padding: 10px 15px;
+            }
+        }
+    }
+}
+</style>

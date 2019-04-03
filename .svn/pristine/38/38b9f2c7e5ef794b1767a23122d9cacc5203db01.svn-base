@@ -1,0 +1,13 @@
+<template>
+
+</template>
+
+<script>
+    export default {
+        name: "official"
+    }
+</script>
+
+<style scoped>
+
+</style>
