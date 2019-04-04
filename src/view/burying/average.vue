@@ -25,76 +25,67 @@
       </ul>
       <hr>
     </section>
-    <section class="section_jingzhun">
-      <h3>精准搜索</h3>
-      <div>
-        <el-select v-model="search.item" placeholder="请选择" size="small" clearable style="width: 100px">
-          <el-option label="用户名" value="0"></el-option>
-          <el-option label="手机号" value="1"></el-option>
-          <el-option label="微博号" value="2"></el-option>
-          <el-option label="微信号" value="3"></el-option>
-        </el-select>
-        <el-input v-model="search.jingzhun" placeholder="精准搜索" class="searchInput" size="small"
-          prefix-icon="el-icon-search"></el-input>
-        <el-button size="small" class="searchButton" @click="jingzhunSearch()">搜索档案</el-button>
-      </div>
-    </section>
-    <hr>
-    <section class="section_shaixuan">
-      <h3>筛选搜索</h3>
-      <el-form ref="form" :model="form" label-width="80px">
-        <el-form-item label="日期搜索:">
-          <el-date-picker v-model="form.date" type="daterange" value-format="timestamp" range-separator="至"
-            start-placeholder="开始日期" end-placeholder="结束日期" size="small" style="width: 380px">
-          </el-date-picker>
-          <el-select v-model="form.item" placeholder="请选择" size="small" clearable style="width: 100px">
-            <el-option label="注册时间" value="1"></el-option>
-            <el-option label="最近登录时间" value="2"></el-option>
-            <el-option label="信息生日" value="3"></el-option>
+    <div class="section_middle">
+      <section class="section_jingzhun">
+        <h3>精准搜索</h3>
+        <div>
+          <el-select v-model="search.item" placeholder="请选择" size="small" clearable style="width: 100px">
+            <el-option label="用户名" value="0"></el-option>
+            <el-option label="手机号" value="1"></el-option>
+            <el-option label="微博号" value="2"></el-option>
+            <el-option label="微信号" value="3"></el-option>
           </el-select>
-        </el-form-item>
-        <el-form-item label="数量搜索:">
-          <el-input v-model="form.minNum" placeholder="最小整数" size="small" class="search_num"></el-input>
-          <span style="padding: 0 10px">---------------</span>
-          <el-input v-model="form.maxNum" placeholder="最大整数" size="small" class="search_num"></el-input>
-          <el-select v-model="form.numItem" placeholder="请选择" size="small" clearable style="width: 100px">
-            <el-option label="账户余额" value="1"></el-option>
-            <el-option label="总提现" value="2"></el-option>
-            <el-option label="举报别人" value="3"></el-option>
-            <el-option label="被人举报" value="4"></el-option>
-            <el-option label="粉丝数" value="5"></el-option>
-            <el-option label="关注数" value="6"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-button size="small" class="formButton" icon="el-icon-search" @click="selectRrcord()">搜索档案</el-button>
-      </el-form>
-    </section>
+          <el-input v-model="search.jingzhun" placeholder="精准搜索" class="searchInput" size="small"
+            prefix-icon="el-icon-search"></el-input>
+          <el-button size="small" class="searchButton" @click="jingzhunSearch()">搜索档案</el-button>
+        </div>
+      </section>
+      <hr>
+      <section class="section_shaixuan">
+        <h3>筛选搜索</h3>
+        <el-form ref="form" :model="form" label-width="80px">
+          <el-form-item label="日期搜索:">
+            <el-date-picker v-model="form.date" type="daterange" value-format="timestamp" range-separator="至"
+              start-placeholder="开始日期" end-placeholder="结束日期" size="small" style="width: 380px">
+            </el-date-picker>
+            <el-select v-model="form.item" placeholder="请选择" size="small" clearable style="width: 100px">
+              <el-option label="注册时间" value="1"></el-option>
+              <el-option label="最近登录时间" value="2"></el-option>
+              <el-option label="信息生日" value="3"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="数量搜索:">
+            <el-input v-model="form.minNum" placeholder="最小整数" size="small" class="search_num"></el-input>
+            <span style="padding: 0 10px">---------------</span>
+            <el-input v-model="form.maxNum" placeholder="最大整数" size="small" class="search_num"></el-input>
+            <el-select v-model="form.numItem" placeholder="请选择" size="small" clearable style="width: 100px">
+              <el-option label="账户余额" value="1"></el-option>
+              <el-option label="总提现" value="2"></el-option>
+              <el-option label="举报别人" value="3"></el-option>
+              <el-option label="被人举报" value="4"></el-option>
+              <el-option label="粉丝数" value="5"></el-option>
+              <el-option label="关注数" value="6"></el-option>
+            </el-select>
+          </el-form-item>
+          <el-button size="small" class="formButton" icon="el-icon-search" @click="selectRrcord()">搜索档案</el-button>
+        </el-form>
+      </section>
+    </div>
     <hr>
     <main>
       <section class="section_title">
         <h3>用户列表</h3>
         <div class="search">
-          <el-date-picker v-model="search.time"
-                          type="daterange"
-                          value-format="yyyy-MM-dd"
-                          range-separator="至"
-                          start-placeholder="开始日期" end-placeholder="结束日期"
-                          size="small" class="searchTime" @change="handleClick">
-          </el-date-picker>
-          <el-button  size="small" style="margin-left: 10px" plain class="click_dangan" @click="$router.push({name:'userRecord'})"> 档案搜索</el-button>
-          <el-button  size="small" style="margin-left: 10px" plain class="click_dangan" @click="print(0)"> 打印当前页</el-button>
-          <el-button  size="small" style="margin-left: 10px" plain class="click_dangan" @click="print(1)"> 打印全部</el-button>
+          <el-button size="small" style="margin-left: 10px" plain class="click_dangan" @click="print(0)"> 打印当前页</el-button>
+          <el-button size="small" style="margin-left: 10px" plain class="click_dangan" @click="print(1)"> 打印全部</el-button>
           <el-button size="small" style="margin-left: 10px" plain class="click_dangan" @click="printJingzhun(0)" v-show="!printType"> 打印当前页精准</el-button>
           <el-button size="small" style="margin-left: 10px" plain class="click_dangan" @click="printJingzhun(1)" v-show="!printType"> 打印全部精准</el-button>
         </div>
       </section>
-      
       <el-table :data="tableData" style="width: 100%;margin-top: 15px" size="small" border v-loading="loading">
-        <!-- <el-table-column prop="date" label="序号" align="center" sortable></el-table-column> -->
-        <el-table-column label="用户编号" align="center">
-            
+        <el-table-column prop="id" label="用户编号" align="center">    
         </el-table-column>
-        <el-table-column label="注册时间" align="center">
+        <el-table-column label="注册时间" align="center" width="90">
           <template slot-scope="props">
             {{ new Date(props.row.createTime) | moment('YYYY-MM-DD HH:mm:ss')}}
           </template>
@@ -107,13 +98,13 @@
             {{ props.row.sex == 0 ? '女' : props.row.sex == 1 ? '男' : '' }}
           </template>
         </el-table-column>
-        <el-table-column prop="role" label="级别" align="center">
-          <template slot-scope="props">
-            {{ props.row.role == 0 ? '大V' : props.row.role == 1 ? '新秀' : '' }}
-          </template>
-        </el-table-column>
         <el-table-column prop="phone" label="手机号" align="center"></el-table-column>
         <el-table-column prop="birthday" label="生日" align="center"></el-table-column>
+        <el-table-column prop="role" label="级别" align="center">
+          <template slot-scope="props">
+            <el-button type="primary" size="mini" @click="changeRole(props.row)">{{ props.row.role == 0 ? '大V' : props.row.role == 1 ? '新秀' : '' }}</el-button>
+          </template>
+        </el-table-column>
         <el-table-column prop="fansNum" label="粉丝数" align="center"></el-table-column>
         <el-table-column prop="followNum" label="关注数" align="center"></el-table-column>
         <el-table-column prop="balance" label="账户余额" align="center"></el-table-column>
@@ -121,7 +112,7 @@
         <el-table-column prop="beReportAllCount" label="被举报数" align="center"></el-table-column>
         <el-table-column prop="rechargeSheetSum" label="充值" align="center"></el-table-column>
         <el-table-column prop="incomeWithdrewSum" label="提现" align="center"></el-table-column>
-        <el-table-column label="最后登录" align="center">
+        <el-table-column label="最后登录" align="center" width="90">
           <template slot-scope="props">
             {{ new Date(props.row.latestLogin) | moment('YYYY-MM-DD HH:mm:ss')}}
           </template>
@@ -134,7 +125,10 @@
         </el-table-column>
       </el-table>
       <div class="block" style="float: right;margin-top: 15px">
-        <el-pagination layout="total,prev, pager, next" :page-size="size" background :page-count="count" :total="total"
+        <el-pagination layout="total, prev, pager, next" background
+          :page-size="size"  
+          :page-count="count"
+          :total="total"
           @current-change="handleCurrentChange"></el-pagination>
       </div>
     </main>
@@ -144,7 +138,7 @@
 <script>
   import CryptoJS from 'crypto-js'
   export default {
-    name: "userRecord",
+    name: "userSearch",
     data() {
       return {
         loading: false,
@@ -174,34 +168,21 @@
     },
     methods: {
       async showList(){
-          // this.loading = true;
           const page = this.page;
           await this.$api.user.tongji(data=>{
-            // console.log(data)
-            // this.loading = false;
-            this.userNums = data.userNums;
-            // this.tableData = data.newestUsers;
-            // this.total = data.pageInfo.total;
-            // this.pageSize = data.pageInfo.pages;
-            // this.size = data.pageInfo.pageSize;
+            this.userNums = data.userNums
           },{
-            pageNum:page,
-            // registerStart:this.search.time[0],               //注册开始时间
-            // registerEnd:this.search.time[1],
+            pageNum:page
           })
         },
-      //  分页
-      handleCurrentChange(val) {
-        this.page = val;
-        this.selectRrcord()
-        this.jingzhunSearch()
-      },
+     
       // 查看档案
       selectRrcord() {
         const page = this.page
         this.loading = true;
         this.printType = true;
         this.$api.user.search_shaixuan(data => {
+          console.log(data)
           this.loading = false;
           this.tableData = data.result
           this.total = data.pageInfo.total;
@@ -309,18 +290,41 @@
             console.log(error)
           })
       },
-      //  日期选中时触发事件
-      handleClick(val){
-        // console.log(val)
-        this.showList();  // 日期选中时回调
-      },
+      // 分页
       handleCurrentChange(val){
         this.page = val;
-        this.showList();
+        this.selectRrcord()
+        this.jingzhunSearch()
       },
+      //改变权限
+      changeRole(row){
+          this.userRow = row.role == 0 ? '新秀' : '大V'
+          this.$confirm(`<p>确定要改变此用户级别为<span style="color:red;font-size: 16px"> ${this.userRow} </span>吗？</p>`, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true,
+            type: 'success'
+          }).then(() => {
+            this.$api.user.editor_user_role(()=>{
+              this.showList();
+              this.$notify({
+                type:'success',
+                message:'修改级别成功',
+                title:'成功'
+              })
+            },{
+              userId:row.id,
+              role:row.role == 0 ? 1 : row.role == 1 ? 0 : null
+            })
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            });
+          });
+        }
     }
   }
-
 </script>
 
 <style scoped lang="less">
@@ -363,41 +367,47 @@
         }
       }
     }
-    .section_title{
-      h3{
-        text-align: center;
-      }
-      .search{
-        margin-top: 15px;
-        .searchTime{
-          width: 360px;
-          margin-right: 15px;
+    .section_middle{
+      display: flex;
+      justify-content: space-around;
+      .section_title{
+        display: flex;
+        h3{
+          width: 200px;
+          text-align: center;
         }
-        .searchInput{
-          width: 180px;
-          display: inline-block;
-          margin-right: 10px;
-          margin-top: 5px;
+        .search{
+          margin-top: 15px;
+          .searchTime{
+            width: 360px;
+            margin-right: 15px;
+          }
+          .searchInput{
+            width: 180px;
+            display: inline-block;
+            margin-right: 10px;
+            margin-top: 5px;
+          }
         }
       }
-    }
-    .section_jingzhun {
-      width: 500px;
-      margin: 0 auto;
-      h3 {
-        text-align: center;
-      }
-
-      div {
-        .searchInput {
-          width: 280px;
-          display: inline-block;
-          margin-top: 5px;
+      .section_jingzhun {
+        width: 500px;
+        margin: 0 auto;
+        h3 {
+          text-align: center;
         }
 
-        .searchButton {
-          background-color: @theme_color;
-          color: #fff;
+        div {
+          .searchInput {
+            width: 280px;
+            display: inline-block;
+            margin-top: 5px;
+          }
+
+          .searchButton {
+            background-color: @theme_color;
+            color: #fff;
+          }
         }
       }
     }

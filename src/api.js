@@ -3,11 +3,8 @@ import axios from 'axios'
 import CryptoJS from 'crypto-js'
 Vue.prototype.$ajax = axios;
 
-// axios.defaults.baseURL = 'http://10.10.10.163:8011';    //大伟哥服务器
-// axios.defaults.baseURL = 'http://47.97.193.33:8089';
-// axios.defaults.baseURL = 'http://192.168.0.193:8085';
-axios.defaults.baseURL = 'http://admin.dev.yoursmiyu.com';
-// axios.defaults.baseURL = '/';
+axios.defaults.baseURL = 'http://192.168.0.59:8085';
+// axios.defaults.baseURL = 'http://admin.dev.yoursmiyu.com';
 
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
 // axios.defaults.headers.get['Content-Type'] = 'application/json;charset=UTF-8';

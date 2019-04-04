@@ -148,7 +148,6 @@
                   console.error('error: %j', err);
                 });
               },{});
-
             },
             // 删除消息
             deleteNews(id){

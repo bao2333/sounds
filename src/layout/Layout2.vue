@@ -50,7 +50,5 @@ export default {
 }
 </script>
 <style>
-a{
-  
-}
+
 </style>
