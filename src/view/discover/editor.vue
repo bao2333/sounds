@@ -21,7 +21,7 @@
       @change="iconFileChange"
       type="file"
       name="icon"
-      style="display: none" 
+      style="display: none"
     >
     <!-- 标题 -->
     <!-- <h3>{{ this.$route.params.title }}</h3> -->

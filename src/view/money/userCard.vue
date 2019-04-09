@@ -95,7 +95,7 @@
                     <el-table-column prop="buyVoice" label="购买语音/金币" align="center"></el-table-column>
                     <el-table-column prop="liveChat" label="实时聊天/金币" align="center"></el-table-column>
                     <el-table-column prop="mallIncome" label="商城收入/金币" align="center"></el-table-column>
-                  <el-table-column prop="recharge" label="充值/元" align="center"></el-table-column>
+                    <el-table-column prop="recharge" label="充值/元" align="center"></el-table-column>
                     <el-table-column prop="withdrawalTotal" label="提现成功/元" align="center"></el-table-column>
                 </el-table>
                 <div class="block" style="margin-top: 15px">

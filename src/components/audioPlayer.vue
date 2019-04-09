@@ -12,7 +12,6 @@
         </audio>
         <span v-if="form!==1">{{second}}s</span>
       </div>
-
     </div>
 </template>
 

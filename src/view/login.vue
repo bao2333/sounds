@@ -32,7 +32,7 @@
 
               <div class="d-flex justify-content-between align-items-center m-0">
                 <!--<b-check v-model="credentials.rememberMe" class="m-0">记住密码</b-check>-->
-                <b-btn  style="background-color: rgb(255, 64, 129);float: right" @click="loginPost()">登录</b-btn>
+                <b-btn  style="background-color: rgb(255, 64, 129);float: right" @click.once="loginPost()">登录</b-btn>
               </div>
             </form>
             <!-- / Form -->
@@ -100,5 +100,15 @@
   .custom-control.custom-checkbox .custom-control-input:checked ~ .custom-control-label::before, .custom-control.custom-radio .custom-control-input:checked ~ .custom-control-label::before {
     border-color: rgb(255, 64, 129);
     background-color: rgb(255, 64, 129)
+  }
+  .loginButton {
+     background-color: rgb(255, 64, 129);
+     float: right;
+     width: 66px;
+     height: 38px;
+     border-radius: 4px;
+     color: #fff;
+     border: none;
+     outline: none;
   }
 </style>

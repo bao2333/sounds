@@ -63,7 +63,12 @@
             }
         },
         created(){
-
+            document.onkeydown = function (e) {
+                const key = window.event.keyCode;
+                if (key == 13) {
+                    return false
+                }
+            }
         },
         methods:{
             

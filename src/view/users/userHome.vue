@@ -103,8 +103,7 @@ export default {
           confirmButtonText: "狠心删除",
           cancelButtonText: "点错了",
           type: "warning"
-        })
-          .then(() => {
+        }).then(() => {
             this.$api.user.personal_home_delete(()=>{
               this.$notify({
                 type: "success",
@@ -114,15 +113,14 @@ export default {
             },{
               id:id
             })
-          })
-          .catch(() => {
+          }).catch(() => {
             this.$notify({
               type: "info",
               message: "已取消删除"
             });
           });
+        }
       }
-    }
     };
 </script>
 

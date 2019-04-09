@@ -98,7 +98,6 @@
                     for( let key in this.tableData){
                       this.$set(this.chafengData,key,'')
                     }
-
                     console.log(this.chafengData)
                     this.total = data.pageInfo.total;
                     this.size = data.pageInfo.pageSize;

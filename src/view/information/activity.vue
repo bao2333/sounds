@@ -24,7 +24,7 @@
           </p>
         </div>
       </article>
-      <div class="block" style="float: right;margin-top: 15px;margin-right:20%">
+      <div class="block" style="float: right;margin-top: 15px;margin-right:5%">
         <el-pagination
           layout="total,prev, pager, next"
           :page-size="size"

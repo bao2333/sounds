@@ -14,8 +14,12 @@
                         <span>最新版本：{{ item.verInfo }}</span>
                         链接：<input size="mini" :value="item.downloadLink" :id="item.id"/>
                         <el-button size="mini" type="primary" @click="copyUrl(item)">复制链接</el-button>
-                        <el-button size="mini" type="text" style="font-size:16px;margin-right:15px;" @click="dialogVisible=true;getDetails(item)">更新详情></el-button>
-                        <el-button size="mini" type="danger" @click="deleteBanben(item.id)">删除</el-button>
+                        <div style="margin-left:15px;">
+                            状态:<span></span>
+                            <el-button size="mini" type="primary" @click="forceUpdate()">是否强制更新</el-button>
+                            <el-button size="mini" type="danger" @click="deleteBanben(item.id)">删除</el-button>
+                            <el-button size="mini" type="text" style="font-size:16px;margin-right:15px;" @click="dialogVisible=true;getDetails(item)">更新详情></el-button>
+                        </div>
                     </li>
                     <li>
                        <div class="add_show" v-show="addAndroidShow" @click="showOrfalse(0)">
@@ -58,8 +62,7 @@
                 </ul>
             </div>
         </section>
-        <el-dialog title="更新详情" :visible.sync="dialogVisible" width="30%" >
-            
+        <el-dialog title="更新详情" :visible.sync="dialogVisible" width="30%" > 
             <div v-if="setType==0">
                 <p>安卓版本详情：</p>
                  <el-input type="textarea" v-model="add.androidDetails"></el-input>
@@ -114,6 +117,7 @@
         methods:{
             getInformation(){
                 this.$api.set.banben_list(data=>{
+                    console.log(data)
                     // 遍历数据，根据appType来取出android和ios的数据
                    data.map(item=>{
                        item.map(element=>{
@@ -212,6 +216,33 @@
                     this.addIosShow = true;
                 }
 
+            },
+            //强制更新
+            forceUpdate() {
+                this.$confirm('此操作将强制更新, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    this.$api.set.banben_add(data => {
+                        console.log(data)
+                        this.$message({
+                            type: 'success',
+                            message: '强制更新成功!'
+                        });
+                    }, {
+                        updateType: 1
+                    })
+                }).catch(() => {
+
+                    
+
+
+                    this.$message({
+                        type: 'info',
+                        message: '已取消强制更新'
+                    });      
+                });
             }
         }
     }
