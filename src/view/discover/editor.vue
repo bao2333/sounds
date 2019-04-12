@@ -6,7 +6,6 @@
                 <el-breadcrumb-item class="now_page" v-if="$route.query.methods == 'add'">新增动态</el-breadcrumb-item>
                 <el-breadcrumb-item class="now_page" v-else>修改动态</el-breadcrumb-item>
             </el-breadcrumb>
-
         </header>
     <div class="box">
 
@@ -148,6 +147,7 @@ export default {
      if(this.$route.query.methods == 'add'){
        this.getOfficalHead()
      }
+    document.onkeydown = null
   },
   updated() {
     if(this.imgs){
