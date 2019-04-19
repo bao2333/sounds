@@ -651,7 +651,16 @@ export const find = {
             data: data
         };
         ajax(callback, request, error);
-    }
+    },
+    //是否设置为优质内容
+    setHighQuality: (callback, data, error) => {
+        let request = {
+            url: '/article/setHighQuality',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
 };
 /**
  * 系统设置

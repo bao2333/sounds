@@ -107,12 +107,12 @@
       <el-table-column prop="collectNum" label="收藏数" align="center" width="80"></el-table-column>
       <el-table-column prop="transpondNum" label="转发数" align="center" width="80"></el-table-column>
       <el-table-column prop="pageViewNum" label="浏览量" align="center" width="80"></el-table-column>
-      <el-table-column label="位置" align="center">
+      <el-table-column label="位置" align="center" width="100">
         <template slot-scope="props">
           {{ props.row.location == '' ? '未定位' : props.row.location}}
         </template>
       </el-table-column>
-      <el-table-column prop="labelName" label="选择标签" align="center"></el-table-column>
+      <el-table-column prop="labelName" label="选择标签" align="center" width="120"></el-table-column>
       <el-table-column label="审核状态" align="center" width="70">
         <template slot-scope="props">
           {{ props.row.state == 0 ? '待审核' : props.row.state == 1 ? '审核通过' : '审核不通过' }}
@@ -144,6 +144,9 @@
           </el-button>
           <el-button type="primary" style="margin-left:0" size="mini" plain class="caozuoBtn" v-else
                      @click="tuijianPost(props.row,0)">取消置顶
+          </el-button>
+          <el-button type="primary" style="margin-left:0" size="mini" plain class="caozuoBtn"
+                     @click="highQuality(props.row)">{{ props.row.highQuality == 0 ? '设为优质' : props.row.highQuality == 1 ? '取消优质' : '' }}
           </el-button>
         </template>
       </el-table-column>
@@ -267,7 +270,6 @@
         for (let i = audios.length - 1; i >= 0; i--) {
           if (audios[i].src == srcAudio) {
             audios[i].play()
-
             this.paused_click(i)
           }
           this.pauseAll(i);
@@ -545,6 +547,33 @@
       },
       handleSelectionChange(val) {
         this.multipleSelection = val
+      },
+      //是否设置为优质内容
+      highQuality(row) {
+        console.log(row)
+        this.containRow = row.highQuality == 0 ? '优质' : '非优质'
+          this.$confirm(`<p>确定要改变此文章设置为<span style="color:red;font-size: 16px"> ${this.containRow} 内容</span>吗？</p>`, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true,
+            type: 'success'
+          }).then(() => {
+            this.$api.find.setHighQuality(()=>{
+              this.showList();
+              this.$message({
+                message: '成功设置为优质内容',
+                type: 'success'
+              });
+            },{
+              articleId: row.id,
+              highQuality: row.highQuality == 0 ? 1 : row.highQuality == 1 ? 0 : null
+            })
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消设置'
+            });
+          });
       }
     }
   };

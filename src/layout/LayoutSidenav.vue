@@ -85,10 +85,12 @@
         <sidenav-router-link  to="/burying/average" :exact="true">用户列表</sidenav-router-link>
         <sidenav-router-link  to="/burying/staytime" :exact="true">每个板块停留时长</sidenav-router-link>
       </sidenav-menu>
-      <sidenav-menu icon="ion ion-ios-paper-plane" :active="isMenuActive('/channel')" :open="isMenuOpen('/channel')">
-        <template slot="link-text">渠道分析</template>
-        <sidenav-router-link  to="/channel/timeslot" :exact="true">时段详情</sidenav-router-link>
-        <sidenav-router-link  to="/channel/channellist" :exact="true">渠道列表</sidenav-router-link>
+      <sidenav-menu icon="ion ion-ios-rocket" :active="isMenuActive('/lottery')" :open="isMenuOpen('/lottery')">
+        <template slot="link-text">抽奖系统</template>
+        <sidenav-router-link  to="/lottery/pricemanagement" :exact="true">奖品管理</sidenav-router-link>
+        <sidenav-router-link  to="/lottery/stock" :exact="true">奖品库存</sidenav-router-link>
+        <sidenav-router-link  to="/lottery/sweepstakes" :exact="true">抽奖活动</sidenav-router-link>
+        <sidenav-router-link  to="/lottery/commonaddress" :exact="true">常用地址</sidenav-router-link>
       </sidenav-menu>
     </div>
   </sidenav>
