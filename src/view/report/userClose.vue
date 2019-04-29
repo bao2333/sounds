@@ -58,6 +58,23 @@
                 <el-pagination layout="total,prev, pager, next" :page-size="size" background :page-count="count" :total="total" @current-change="handleCurrentChange"></el-pagination>
             </div>
         </section>
+        <section class="reported">
+            <el-input v-model="searchReportedName" placeholder="请输入被举报人姓名" size="mini" style="display:inline-block;width:200px;" clearable></el-input>
+            <el-button type="primary" size="mini" @click="reported()">查询</el-button>
+            <el-table :data="reportedData" style="width: 100%;margin-top:15px" border size="small" v-loading="loading">
+                <el-table-column prop="name" label="被举报人" align="center"></el-table-column>
+                <el-table-column label="查封" align="center">
+                    <template slot-scope="props">
+                        <el-select v-model="chafengData[props.$index]" placeholder="选择查封天数" :disabled="selectShow" size="mini" style="width:150px;" @change="chafengPost(props.$index,props.row.userId)">
+                            <el-option label="再+3天" value="3"></el-option>
+                            <el-option label="再+1周" value="7"></el-option>
+                            <el-option label="再+1个月" value="30"></el-option>
+                            <el-option label="查封永久" value="36500"></el-option>
+                        </el-select>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </section>
     </div>
 </template>
 
@@ -69,16 +86,17 @@
                 loading:false,
                 tableData:[],
                 searchName:'',      //搜索的名字
+                searchReportedName: '',  //搜索全部的用户
                 page:1,         //当前页数
                 total:null,   //分页总条目数
                 size:null,   //分页页数
                 count:null,   //页数
                 chafengData:{},     //追加查封日期
                 selectShow:false,
+                reportedData: []
             }
         },
         created(){
-
             if(this.$route.params.name){
                 this.searchName = this.$route.params.name
             }
@@ -131,6 +149,14 @@
                     });
                 });
             },
+            reported() {
+                this.$api.jubao.jubao_content_reported(data => {
+                    this.reportedData = data
+                    this.searchReportedName = ''
+                }, {
+                    name: this.searchReportedName
+                })
+            },
             chafengPost(index,userId){
                 this.$confirm(`确定要追加查封该用户 ${this.chafengData[index]} 天吗？`, '提示', {
                     confirmButtonText: '狠心查封',
@@ -146,15 +172,16 @@
                         });
                         this.getList();
                         this.chafengData[index] = ''
-                      this.selectShow = false;
+                        this.selectShow = false
+                        this.reportedData = []
                     },{
                         userId:userId,
                         day:parseInt(this.chafengData[index])
                     })
                 }).catch(() => {
-                    this.$message({
-                    type: 'info',
-                    message: '已取消'
+                        this.$message({
+                        type: 'info',
+                        message: '已取消'
                     });
                 });
             }
@@ -165,5 +192,8 @@
 <style scoped>
 section{
     margin-top: 15px;
+}
+.reported {
+    margin-top: 50px;
 }
 </style>

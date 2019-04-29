@@ -2,11 +2,13 @@
     <div>
         <el-breadcrumb separator="/">
             <el-breadcrumb-item :to="{ path: '/burying/nikkatsu' }">用户分析</el-breadcrumb-item>
-            <el-breadcrumb-item class="now_page">每个板块停留时长</el-breadcrumb-item>
+            <el-breadcrumb-item class="now_page">短信群发</el-breadcrumb-item>
         </el-breadcrumb>
-        <div class="edit" style="width:800px;margin: 15px;float:left">
-            <el-input type="textarea" placeholder="请输入内容"  v-model="value" style="width:90%;margin-left: 5%"></el-input>
-        </div>  
+        <div class="send">
+            <el-button type="primary" plain @click="sendMsg()">
+                短信群发
+            </el-button>
+        </div>
     </div>
 </template>
 
@@ -14,12 +16,26 @@
 export default {
     data() {
         return {
-            value: ''
+            
+        }
+    },
+    methods: {
+        sendMsg() {
+            this.$api.userAnalysis.sendMsg(data => {
+                console.log(data)
+                this.$notify({
+                    title: '成功',
+                    message: '短信群发成功',
+                    type: 'success'
+                })
+            })
         }
     }
 }
 </script>
 
-<style>
-
+<style lang="less" scoped>
+    .send {
+        margin-top: 30px;
+    }
 </style>

@@ -5,6 +5,8 @@ Vue.prototype.$ajax = axios;
 
 // axios.defaults.baseURL = 'http://192.168.0.59:8085';
 axios.defaults.baseURL = 'http://admin.dev.yoursmiyu.com';
+// axios.defaults.baseURL = 'http://129.211.12.192:8083';
+
 
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
 // axios.defaults.headers.get['Content-Type'] = 'application/json;charset=UTF-8';
@@ -468,6 +470,15 @@ export const jubao = {
         };
         ajax(callback, request, error);
     },
+    //举报所有的用户
+    jubao_content_reported: (callback, data, error) => {
+        let request = {
+            url: '/report/selectBannedUser',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    }
 };
 /**
  * 发现管理
@@ -890,7 +901,15 @@ export const set = {
       };
       ajax(callback, request, error);
     },
-
+    //强制更新
+    updateApp: (callback, data, error) => {
+        let request = {
+            url: '/appVersion/updateAppType',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    }
 };
 /**
  * 财务管理
@@ -1078,6 +1097,15 @@ export const userAnalysis = {
     user_posting: (callback, data, error) => {
         let request = {
             url: '/feedback/getStatisticNum',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //短信群发
+    sendMsg: (callback, data, error) => {
+        let request = {
+            url: '/userWangyiyun/sendMsg',
             method: 'post',
             data: data
         };

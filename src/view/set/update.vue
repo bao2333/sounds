@@ -11,12 +11,13 @@
             <div class="details">
                 <ul>
                     <li v-for="(item,index) in androidData" :key="index">
-                        <span>最新版本：{{ item.verInfo }}</span>
+                        <span>版本名称：{{ item.verInfo }}</span>
+                        <span>版本号：{{ item.verCode }}</span>
                         链接：<input size="mini" :value="item.downloadLink" :id="item.id"/>
                         <el-button size="mini" type="primary" @click="copyUrl(item)">复制链接</el-button>
                         <div style="margin-left:15px;">
-                            状态:<span></span>
-                            <el-button size="mini" type="primary" @click="forceUpdate()">是否强制更新</el-button>
+                            状态:<span>{{item.updateType == 0 ? '非强制更新' : '强制更新'}}</span>
+                            <el-button size="mini" type="primary" @click="forceUpdate(item)">{{item.updateType == 0 ? '强制更新' : '非强制更新'}}</el-button>
                             <el-button size="mini" type="danger" @click="deleteBanben(item.id)">删除</el-button>
                             <el-button size="mini" type="text" style="font-size:16px;margin-right:15px;" @click="dialogVisible=true;getDetails(item)">更新详情></el-button>
                         </div>
@@ -26,11 +27,14 @@
                            <i class="el-icon-plus"></i>
                        </div>
                        <div class="add_banben" v-show="!addAndroidShow">
-                            <span>最新版本：<el-input size="mini" v-model="add.androidBanben"></el-input></span>
-                            <span>链接：<el-input size="mini" v-model="add.androidUrl"></el-input></span>
-                            <el-button size="mini" type="primary" @click="dialogVisible=true;setDetails(0)">版本更新详情设置</el-button>
-                            <i class="el-icon-circle-close-outline" @click="cancelAdd(0)"></i>
-                            <i class="el-icon-circle-check-outline" @click="AddPost(0)"></i>
+                            <span>版本名称：<el-input size="mini" v-model="add.androidBanben"></el-input></span>
+                            <span>版本号：<el-input size="mini" v-model="add.androidVersionNumber"></el-input></span>
+                            <div class="add_detail">
+                                链接：<el-input size="mini" v-model="add.androidUrl"></el-input>
+                                <el-button size="mini" type="primary" @click="dialogVisible=true;setDetails(0)">版本更新详情设置</el-button>
+                                <i class="el-icon-circle-close-outline" @click="cancelAdd(0)"></i>
+                                <i class="el-icon-circle-check-outline" @click="AddPost(0)"></i>
+                            </div> 
                        </div>
                     </li>
                 </ul>
@@ -41,7 +45,7 @@
             <div class="details">
                 <ul>
                     <li v-for="(item,index) in iosData" :key="index">
-                        <span>最新版本：{{ item.verInfo }}</span>
+                        <span>版本名称：{{ item.verInfo }}</span>
                         链接：<input size="mini" :value="item.downloadLink" :id="item.id"/>
                         <el-button size="mini" type="primary" @click="copyUrl(item)">复制链接</el-button>
                         <el-button size="mini" type="text" style="font-size:16px;margin-right:15px;" @click="dialogVisible=true;getDetails(item)">更新详情></el-button>
@@ -95,9 +99,11 @@
                     androidBanben:'',
                     androidUrl:'',
                     androidDetails:'',
+                    androidVersionNumber: '',
                     iosBanben:'',
                     iosUrl:'',
                     iosDetails:'',
+                    iosVersionNumber: ''
                 },
                 iosData:[], 
                 androidData:[],
@@ -164,6 +170,16 @@
             AddPost(type){
                 this.$api.set.banben_add(()=>{
                     this.getInformation()
+                    this.add.androidBanben=''
+                    this.add.androidUrl=''
+                    this.add.androidDetails=''
+                    this.add.androidVersionNumber= ''
+                    this.add.iosBanben=''
+                    this.add.iosUrl=''
+                    this.add.iosDetails=''
+                    this.add.iosVersionNumber= ''
+                    this.addAndroidShow = true
+                    this.addIosShow = true
                     this.$notify({
                         type: 'success',
                         message: '添加新版本成功!',
@@ -174,6 +190,8 @@
                     verInfo:type==0?this.add.androidBanben:type==1?this.add.iosBanben:'',
                     downloadLink:type==0?this.add.androidUrl:type==1?this.add.iosUrl:'',
                     updateDetail:type==0?this.add.androidDetails:type==1?this.add.iosDetails:'',
+                    verCode: type==0? Number(this.add.androidVersionNumber): type==1? Number(this.add.iosVersionNumber): '',
+                    updateType: 0
                 })
             },
             // 删除版本
@@ -210,38 +228,38 @@
                 
             },
             cancelAdd(type){
-                 if(type === 0){
+                if(type === 0){
                     this.addAndroidShow = true;
                 }else if(type === 1){
                     this.addIosShow = true;
                 }
-
             },
             //强制更新
-            forceUpdate() {
-                this.$confirm('此操作将强制更新, 是否继续?', '提示', {
+            forceUpdate(row) {
+                // console.log(row)
+                this.versionUpdateType = row.updateType == 0 ? '强制更新' : '非强制更新'
+                this.$confirm(`<p>确定要将版本改为<span style="color:red;font-size: 16px"> ${this.versionUpdateType} </span>吗？</p>`, '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消',
-                    type: 'warning'
+                    dangerouslyUseHTMLString: true,
+                    type: 'success'
                 }).then(() => {
-                    this.$api.set.banben_add(data => {
-                        console.log(data)
+                    this.$api.set.updateApp(()=>{
+                        this.getInformation()
                         this.$message({
                             type: 'success',
                             message: '强制更新成功!'
-                        });
-                    }, {
-                        updateType: 1
+                        })
+                    },{
+                        id: row.id,
+                        verCode: row.verCode,
+                        updateType: row.updateType == 0 ? 1 : row.updateType == 1 ? 0 : null
                     })
                 }).catch(() => {
-
-                    
-
-
-                    this.$message({
+                        this.$message({
                         type: 'info',
                         message: '已取消强制更新'
-                    });      
+                    });
                 });
             }
         }
@@ -272,7 +290,7 @@
             ul{
                 margin-bottom: 0;
                 li{
-                    border-bottom:1px solid #ccc;
+                    border-bottom:1px solid rgb(15, 19, 13);
                     height: auto;
                     position: relative;
                     span{
@@ -306,16 +324,23 @@
                     .add_banben{
                         overflow: hidden;
                         line-height: 50px;
+                        .add_detail {
+                            display: flex;
+                            align-items: center;
+                            margin-left: 10px;
+                            button {
+                                margin: 0 10px 0 10px;
+                            }
+                        }
                         span{
                             margin: 0 10px 0 10px;
                         }
                         i{
                             font-size: 24px;
                             cursor: pointer;
-                            // margin-left: 10px;
+                            margin-left: 10px;
                             line-height: 50px;
-                        }
-                        
+                        }   
                     }
                 }
             }
