@@ -19,6 +19,8 @@
       </el-select>
       <el-input v-model="search.userName" placeholder="输入用户名" size="mini" style="float:left;width:150px;" clearable>
       </el-input>
+      <el-input v-model="search.userPhone" placeholder="输入电话号码" size="mini" style="float:left;width:150px;margin: 0 10px;" clearable>
+      </el-input>
       <el-button type="primary" plain size="mini" style="float:left;margin-left:10px;" @click="showList()">查询
       </el-button>
       <el-button type="success" size="mini" style="float:right;margin:0px;" @click="batch()" v-if="flag">批量审核
@@ -107,7 +109,7 @@
       <el-table-column prop="collectNum" label="收藏数" align="center" width="80"></el-table-column>
       <el-table-column prop="transpondNum" label="转发数" align="center" width="80"></el-table-column>
       <el-table-column prop="pageViewNum" label="浏览量" align="center" width="80"></el-table-column>
-      <el-table-column label="位置" align="center" width="100">
+      <el-table-column label="位置" align="center" width="70">
         <template slot-scope="props">
           {{ props.row.location == '' ? '未定位' : props.row.location}}
         </template>
@@ -117,6 +119,9 @@
         <template slot-scope="props">
           {{ props.row.state == 0 ? '待审核' : props.row.state == 1 ? '审核通过' : '审核不通过' }}
         </template>
+      </el-table-column>
+      <el-table-column label="分类" align="center" width="70">
+        官方默认
       </el-table-column>
       <el-table-column label="状态" align="center" width="110">
         <template slot-scope="props">
@@ -128,6 +133,9 @@
           </el-button>
           <el-button type="danger" style="margin-left:0" size="mini" plain class="caozuoBtn" v-if="tuijianShow"
                      @click="shenhePass(props.row,0)">审核不通过
+          </el-button>
+          <el-button type="success" style="margin-left:0" size="mini" plain class="caozuoBtn" v-if="tuijianShow"
+                     @click="classification(props.row)">分类
           </el-button>
           <el-button type="danger" style="margin-left:0" size="mini" class="caozuoBtn" v-if="noshenheShow"
                      @click="deleteArticle(props.row.id)">删除
@@ -174,7 +182,22 @@
         <h4>该文章暂无评论</h4>
       </div>
     </el-dialog>
-
+    
+    <el-dialog title="分类" :visible.sync="classificationShow" width="30%" center>
+      <el-cascader
+        v-model="classificationValue"
+        :options="options"
+        :props="{ label: 'typeName' }"
+        @change="handleChange">
+      </el-cascader>
+      <div class="imgBox">
+        <img :src="$oss.url" alt="">
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="centerDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="determine">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -199,7 +222,8 @@
         search: {
           status: "0", //列表状态
           type: "", //媒体类型
-          userName: "" //用户名
+          userName: "", //用户名
+          userPhone: ""
         },
         tableData: [], //列表
         page: 1,   //当前页
@@ -220,7 +244,10 @@
         palyIndex: null,
         newArrArticle: '',
         newArrUser: '',
-        multipleSelection:[]   //批量审核  选中的当前行的所有信息
+        multipleSelection:[],   //批量审核  选中的当前行的所有信息
+        classificationShow: false,
+        classificationValue: [],
+        options: []
       };
     },
     async created() {
@@ -335,7 +362,8 @@
           pageNum: page,
           articleType: this.search.status == '' ? 0 : parseInt(this.search.status),
           coverType: this.search.type == '' ? null : parseInt(this.search.type),
-          userName: this.search.userName == '' ? null : this.search.userName
+          userName: this.search.userName == '' ? null : this.search.userName,
+          userPhone: this.search.userPhone == '' ? null : this.search.userPhone,
         })
       },
       shenhePass(row, val) {
@@ -574,6 +602,37 @@
               message: '已取消设置'
             });
           });
+      },
+      classification(prop) {
+        this.classificationShow = true
+        this.$api.ClassificationManagement.QueryClassification(data => {
+          // this.options = data
+          for(let i = 0; i < data.length; i++) {
+            data[i].value = data[i].id
+            this.options.push(data[i])
+            this.$api.ClassificationManagement.QueryClassification(data => {
+              console.log(data)
+              // if(data.length) {
+              //   for(let i = 0; i < data.length; i++) {
+              //     data[i].value = data[i].id
+              //     this.$set(this.options[i], "children", data)   
+              //     this.$set(this.options[i].children, "value", data[i].id)
+              //   }
+              // }
+            }, {
+              id: data[i].id
+            })
+          }
+          // console.log(this.options)
+        }, {
+          id: 0
+        })
+      },
+      determine() {
+        this.classificationShow = false
+      },
+      handleChange() {
+        console.log(this.classificationValue)
       }
     }
   };
@@ -671,6 +730,13 @@
     i {
       color: #FFF;
     }
+  }
+
+  .imgBox {
+    width: 400px;
+    height: 200px;
+    margin-top: 10px;
+    border: 1px solid #eee;
   }
 </style>
 <style>

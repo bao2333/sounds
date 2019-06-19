@@ -30,7 +30,7 @@ export default {
 <style lang="less">
   ul{
     li{
-    list-style: none;
+      list-style: none;
     }
   }
   *{

@@ -168,7 +168,6 @@ export default {
       };
       reader.readAsDataURL(file);
       }
-
     }
   }
 };

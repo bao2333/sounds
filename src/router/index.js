@@ -18,7 +18,7 @@ import setRoutes from './setManage'
 import pageRoutes from './startPageManage'
 import loginRoutes from './login'
 import burying from './burying'
-import lottery from './lottery'
+import classification from './classification'
 import adminPermission from './adminPermission'
 
 const ROUTES = [
@@ -35,7 +35,7 @@ const ROUTES = [
   .concat(pageRoutes)
   .concat(loginRoutes)
   .concat(burying)
-  .concat(lottery)
+  .concat(classification)
   .concat(adminPermission)
 
 const router = new Router({

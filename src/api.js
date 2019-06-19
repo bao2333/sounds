@@ -3,9 +3,8 @@ import axios from 'axios'
 import CryptoJS from 'crypto-js'
 Vue.prototype.$ajax = axios;
 
-// axios.defaults.baseURL = 'http://192.168.0.59:8085';
-axios.defaults.baseURL = 'http://admin.dev.yoursmiyu.com';
-// axios.defaults.baseURL = 'http://129.211.12.192:8083';
+axios.defaults.baseURL = 'http://192.168.255.15:8085';
+// axios.defaults.baseURL = 'http://admin.dev.yoursmiyu.com';
 
 
 axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8';
@@ -1102,6 +1101,15 @@ export const userAnalysis = {
         };
         ajax(callback, request, error);
     },
+    //获取登录用户数
+    user_login: (callback, data, error) => {
+        let request = {
+            url: '/feedback/getLoginUserNum',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
     //短信群发
     sendMsg: (callback, data, error) => {
         let request = {
@@ -1111,7 +1119,166 @@ export const userAnalysis = {
         };
         ajax(callback, request, error);
     },
+    // 注册埋点数据统计
+    RegisteredDataStatistics: (callback, data, error) => {
+        let request = {
+            url: '/buriedPoint/selectBuriedPointRegister',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    // 模块埋点数据统计
+    ModuleBuriedPointStatistics: (callback, data, error) => {
+        let request = {
+            url: '/buriedPoint/selectBuriedPointModule',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
 }
+
+//分类管理
+export const ClassificationManagement = {
+    //增加分类
+    IncreaseClassification: (callback, data, error) => {
+        let request = {
+            url: '/label/insertArticleType',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //删除分类
+    DeleteCategory: (callback, data, error) => {
+        let request = {
+            url: '/label/deleteArticleType',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //更新分类
+    UpdateClassification: (callback, data, error) => {
+        let request = {
+            url: '/label/updateArticleType',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //查询分类
+    QueryClassification: (callback, data, error) => {
+        let request = {
+            url: '/label/selectArticleType',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //查询横图的内容
+    QueryHorizontalContent: (callback, data, error) => {
+        let request = {
+            url: '/label/selectTypeAndPicture',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //更改类别的排序
+    ChangeCategorySort: (callback, data, error) => {
+        let request = {
+            url: '/label/updateArticleTypeSort',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //增加图片
+    AddPicture: (callback, data, error) => {
+        let request = {
+            url: '/label/insertPicture',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //删除图片
+    DeleteImage: (callback, data, error) => {
+        let request = {
+            url: '/label/deletePicture',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //查询所有图片
+    QueryAllImages: (callback, data, error) => {
+        let request = {
+            url: '/label/selectAllPicture',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //增加官方音频
+    InsertOfficialAudio: (callback, data, error) => {
+        let request = {
+            url: '/label/insertOfficialVoice',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //删除官方音频
+    DeleteOfficialAudio: (callback, data, error) => {
+        let request = {
+            url: '/label/deleteOfficialVoice',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //修改官方音频
+    ModifyOfficialAudio: (callback, data, error) => {
+        let request = {
+            url: '/label/updateOfficialVoice',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //查询官方音频
+    QueryOfficialAudio: (callback, data, error) => {
+        let request = {
+            url: '/label/selectOfficialVoice',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //获取类别图片
+    GetCategoryImage: (callback, data, error) => {
+        let request = {
+            url: '/label/selectPicture',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //更改图片排序
+    ChangeImageOrder:  (callback, data, error) => {
+        let request = {
+            url: '/label/updatePictureSort',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+}
+
+
 
 function ajax(callback, request, error) {
     let token = window.localStorage.getItem('miyu.token');

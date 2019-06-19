@@ -50,6 +50,7 @@
     "vue-flatpickr-component": "~7.0.0",
     "vue-form-wizard": "~0.8.4",
     "vue-gallery": "~1.4.0",
+    "vue-image-crop-upload": "^2.5.0",
     "vue-input-tag": "~1.0.3",
     "vue-jstree": "~2.1.6",
     "vue-masonry": "~0.11.1",

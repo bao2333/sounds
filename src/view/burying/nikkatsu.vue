@@ -10,7 +10,12 @@
       <el-date-picker v-model="value" type="date" placeholder="选择日期" :picker-options="pickerOptions1">
       </el-date-picker>
       <el-button type="primary" plain @click="getTime()">查询</el-button>
-      <span class="dayLive">{{timeParame}}&nbsp;日活数&nbsp;{{dayLiveNum}}</span>
+    </div>
+    <div class="block">
+      <el-date-picker v-model="value1" type="daterange" range-separator="至" start-placeholder="开始日期"
+        end-placeholder="结束日期">
+      </el-date-picker>
+      <el-button type="primary" plain @click="getUserLoginNum()">查询</el-button>
     </div>
     <div class="user-table" v-loading="loading">
       <div class="dayRegister">
@@ -22,7 +27,7 @@
           </el-table-column>
           <el-table-column prop="Count" label="注册数" align="center">
           </el-table-column>
-        </el-table> 
+        </el-table>
       </div>
       <div class="dayRegister">
         <div class="registerNum">用户发帖量&nbsp;{{userPost}}</div>
@@ -33,7 +38,7 @@
           </el-table-column>
           <el-table-column prop="Count" label="发帖数" align="center">
           </el-table-column>
-        </el-table> 
+        </el-table>
       </div>
       <div class="dayRegister">
         <div class="registerNum">标签发帖量&nbsp;{{labelNum}}</div>
@@ -48,7 +53,15 @@
           </el-table-column>
           <el-table-column prop="Count" label="标签发帖数" align="center">
           </el-table-column>
-        </el-table> 
+        </el-table>
+      </div>
+      <div class="dayRegister">
+        <span class="retain">{{timeParame}}&nbsp;&nbsp;日活数&nbsp;&nbsp;{{tableData.DayActiveNum}}</span>
+        <span class="retain">{{timeParame}}&nbsp;&nbsp;次日留存&nbsp;&nbsp;{{tableData.DayRetain}}</span>
+        <span class="retain">{{timeParame}}&nbsp;&nbsp;三日留存&nbsp;&nbsp;{{tableData.ThreeDayRetain}}</span>
+        <span class="retain">{{timeParame}}&nbsp;&nbsp;周留存&nbsp;&nbsp;{{tableData.WeekRetain}}</span>
+        <span class="retain">{{timeParame}}&nbsp;&nbsp;月留存&nbsp;&nbsp;{{tableData.MonthRetain}}</span>
+        <span class="retain userlogin">{{begin}}至{{ends}}&nbsp;&nbsp;<br>登录用户数&nbsp;&nbsp;{{userlogin}}</span>
       </div>
     </div>
   </div>
@@ -59,13 +72,16 @@
     data() {
       return {
         value: '',
+        value1: '',
         timeParame: '',
-        dayLiveNum: 0,
+        begin: '',
+        ends: '',
         registerNum: 0,
         userPost: 0,
         labelNum: 0,
         tableData: [],
         loading: false,
+        userlogin: 0,
         pickerOptions1: {
           disabledDate(time) {
             return time.getTime() > Date.now();
@@ -79,7 +95,7 @@
           this.registerNum = 0;
           this.userPost = 0;
           this.labelNum = 0;
-          this.loading = true; 
+          this.loading = true;
           var date = new Date(this.value);
           var month = date.getMonth() + 1;
           var day = date.getDate();
@@ -94,7 +110,6 @@
             this.loading = false
             this.value = ''
             this.tableData = data
-            this.dayLiveNum = data.DayActiveNum
             for (var i = 0; i < data.DayRegisterNum.length; i++) {
               this.registerNum += data.DayRegisterNum[i].Count
             }
@@ -108,34 +123,73 @@
             date: this.timeParame
           })
         }
+      },
+      getUserLoginNum() {
+        const start = this.dateDeal('YYYY-MM-DD', this.value1[0])
+        const end = this.dateDeal('YYYY-MM-DD', this.value1[1])
+        this.begin = start
+        this.ends = end
+        this.$api.userAnalysis.user_login(data => {
+          this.userlogin = data
+          this.value1 = ''
+        }, {
+          startDate: start,
+          endDate: end
+        })
+      },
+      dateDeal(str, time) {
+        var formate = '';
+        var date = new Date(time);
+        var year = date.getFullYear();
+        var mouth = date.getMonth() + 1;
+        var day = date.getDate();
+        var hour = date.getHours();
+        var minute = date.getMinutes();
+        var sec = date.getSeconds();
+        if (day < 9 && day > 0) {
+          day = '0' + day;
+        }
+        if (mouth < 9 && day > 0) {
+          mouth = '0' + mouth;
+        }
+        var formate = str.replace(/YYYY/g, year).replace(/MM/g, mouth).replace(/DD/g, day).replace(/HH/g, hour).replace(
+          /MM/g, minute).replace(/SS/g, sec);
+        return formate;
       }
     }
   }
+
 </script>
 
 <style scoped lang="less">
   .user-table {
     display: flex;
+
     .dayRegister {
       width: 300px;
-      margin: 0 20px;
+      margin: 0 10px;
+
       .registerNum {
         text-align: center;
-        margin:15px 0;
+        margin: 15px 0;
         font-size: 20px;
         font-weight: bold;
       }
+
+      .retain {
+        display: block;
+        color: red;
+        font-weight: bold;
+        margin-top: 60px;
+        font-size: 20px;
+        background: #fff;
+      }
     }
   }
+
   .block {
-    width: 100%; 
-    margin:30px 0;
+    width: 100%;
+    padding: 30px 0;
   }
-  .dayLive {
-    width: 200px;
-    font-size: 24px;
-    font-weight: bold;
-    color: red;
-    margin-left: 200px;
-  }
+
 </style>

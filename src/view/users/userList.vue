@@ -33,6 +33,19 @@
         <el-button  size="small" style="margin-left: 10px" plain class="click_dangan" @click="$router.push({name:'userRecord'})"> 档案搜索</el-button>
         <el-button  size="small" style="margin-left: 10px" plain class="click_dangan" @click="print(0)"> 打印当前页</el-button>
         <el-button  size="small" style="margin-left: 10px" plain class="click_dangan" @click="print(1)"> 打印全部</el-button>
+        <el-dialog
+          title="打印区间为2000"
+          :visible.sync="centerDialogVisible"
+          width="30%"
+          center>
+          <el-input v-model="interval1"></el-input> 
+          --------------------------
+          <el-input v-model="interval2"></el-input>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="centerDialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="dermine()">确 定</el-button>
+          </span>
+        </el-dialog>
       </div>
     </section>
     <main>
@@ -48,6 +61,8 @@
           <template slot-scope="props">
             {{ props.row.sex == 0 ? '女' : props.row.sex == 1 ? '男' : '' }}
           </template>
+        </el-table-column>
+        <el-table-column prop="phone"  label="电话" align="center">
         </el-table-column>
         <el-table-column prop="role" label="级别" align="center">
           <template slot-scope="props">
@@ -89,6 +104,9 @@
           total:null,   //分页总条目数
           size:null,   //每页条数
           pageSize:null,   //总页数
+          centerDialogVisible: false,
+          interval1: '', //区间打印1
+          interval2: '', //区间打印2
         }
       },
       created(){
@@ -124,7 +142,7 @@
         },
         // 打印
         async print(type){
-           let userId = await window.localStorage.getItem('miyu.userId')
+          let userId = await window.localStorage.getItem('miyu.userId')
           let token = await window.localStorage.getItem('miyu.token')
           if(type==0){
             this.$ajax.get('/user/userManagementStatisticalListPrint',{
@@ -136,6 +154,7 @@
               }
             })
             .then((res)=>{
+              console.log(res)
               // 获取url
               const url = res.request.responseURL
               window.location.href = url
@@ -144,24 +163,53 @@
               console.log(error)
             })
           }else if(type==1){
+            this.centerDialogVisible = true
+            // this.$ajax.get('/user/userManagementStatisticalListPrint',{
+            //   params:{
+            //     pageNum:null,
+            //     registerStart:this.search.time==''?null:this.search.time[0],               //注册开始时间
+            //     registerEnd:this.search.time==''?null:this.search.time[1],
+            //     token:CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(userId + ':' + token)),
+            //   }
+            // })
+            // .then((res)=>{
+            //   // 获取url
+            //   const url = res.request.responseURL
+            //   window.location.href = url
+            // })
+            // .catch((error)=>{
+            //   console.log(error)
+            // })
+          }
+        },
+        dermine() {
+          let userId = window.localStorage.getItem('miyu.userId')
+          let token = window.localStorage.getItem('miyu.token')
+          this.centerDialogVisible = false
+          if(this.interval1 && this.interval2) {
             this.$ajax.get('/user/userManagementStatisticalListPrint',{
               params:{
                 pageNum:null,
                 registerStart:this.search.time==''?null:this.search.time[0],               //注册开始时间
                 registerEnd:this.search.time==''?null:this.search.time[1],
                 token:CryptoJS.enc.Base64.stringify(CryptoJS.enc.Utf8.parse(userId + ':' + token)),
+                startLimit: Number(this.interval1),
+                endLimit: Number(this.interval2)
               }
             })
             .then((res)=>{
               // 获取url
+              this.interval1 = ''
+              this.interval2 = ''
               const url = res.request.responseURL
               window.location.href = url
             })
             .catch((error)=>{
               console.log(error)
             })
+          } else {
+            this.$message.error('两个区间不能为空')
           }
-
         },
         changeRole(row){
           this.userRow = row.role == 0 ? '新秀' : '大V'
@@ -256,5 +304,10 @@
   background:  @theme_color;
   color: #fff;
 }
-
+.el-dialog__body {
+  .el-input {
+    width: 80px;
+    margin: 0 60px;
+  }
+}
 </style>

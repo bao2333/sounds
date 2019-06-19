@@ -214,6 +214,7 @@ export default {
     },
     iconFileChange(e) {
       let file = e.target.files[0];
+      console.log(file)
       if (!file.name.substring(file.name.lastIndexOf(".")) == ".png") {
         return;
       }
@@ -231,6 +232,7 @@ export default {
             })
               .put(data.random, file)
               .then(data => {
+                console.log(data)
                 if(this.updateType==0){ //图片
                   this.addImg = data.name
                   this.imgs.push(this.addImg)

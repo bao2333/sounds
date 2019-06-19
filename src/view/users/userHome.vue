@@ -22,14 +22,27 @@
                     <el-table-column prop="content" label="文字内容" align="center"></el-table-column>
                     <el-table-column label="媒体内容" align="center">
                         <template slot-scope="props">
-                         <p v-if="props.row.coverType==-1">暂无资源</p>
-                         <div v-if="props.row.coverType == 0">
-                            <img :src="$oss.url + ele" alt="" v-for="(ele,index) in props.row.coverResources" :key="index" width="100" style="margin:0 3px 3px 0  ">
+                          <p v-if="props.row.coverType==-1">暂无资源</p>
+                          <div v-if="props.row.coverType == 0">
+                            <img :src="$oss.url + ele" alt="" v-for="(ele,index) in props.row.coverResources" :key="index" width="100" style="margin:0 3px 3px 0">
                           </div>
                           <div v-if="props.row.coverType == 1">
                             <video :src="$oss.url + ele" v-for="(ele,index) in props.row.coverResources" :key="index" width="200" controls="controls"></video>
                           </div>
                           <div v-if="props.row.coverType == 2">
+
+                            <!-- <div class="box" v-for="(ele,index) in props.row.coverResources" :key="index">
+                              <button class="play_button" @click="play_click(ele,props.row,props.$index)" v-show="props.row.isShow === true">
+                                <i class="ion ion-ios-play align-middle"></i>
+                              </button>
+                              <button class="play_button" @click="paused_click();pauseClick(props.$index)" v-show="props.row.isShow === false">
+                                <i class="ion ion-ios-pause align-middle"></i>
+                              </button>
+                              <audio @ended="ended(props.row)" :src="$oss.url+ele" ref="personal_play">
+                              </audio>
+                              <span>{{props.row.second}}s</span>
+                            </div> -->
+
                             <audioPlayer 
                             :url="ele" 
                             :second="props.row.second" 
@@ -59,6 +72,7 @@
 </template>
 
 <script>
+import audioPlayer from "../../components/audioPlayer"
 export default {
     name: "userHome",
     data() {
@@ -71,7 +85,10 @@ export default {
         total:null,
         head:'',  //头像
         name:'',  //名字
-      };
+      }
+    },
+    components: {
+      audioPlayer
     },
     created() {
       this.getList()
@@ -85,6 +102,7 @@ export default {
         this.loading = true;
         const page = this.page;
         this.$api.user.personal_home(data=>{
+          console.log(data)
           this.loading = false;
           this.head = data.head;
           this.name = data.name;
@@ -120,7 +138,48 @@ export default {
             });
           });
         }
-      }
+      },
+      pauseAll(index) {
+        let videos = document.getElementsByTagName('video');
+        for (let j = videos.length - 1; j >= 0; j--) {
+          if (j != index) videos[j].pause();
+        }
+      },
+      //点击播放
+      async play_click(src,row,index) {
+        console.clear()
+        this.palyIndex = index
+        await this.tableData.map(item => {
+          this.$set(item,'isShow',true)
+        })
+        // await this.$set(this.tableData[this.palyIndex],'isShow',true)
+        var audios = document.getElementsByTagName('audio');
+        //判斷播放地址
+        let srcAudio = 'http://sounds-miyu.oss-cn-hangzhou.aliyuncs.com/' + src
+        for (let i = audios.length - 1; i >= 0; i--) {
+          if (audios[i].src == srcAudio) {
+            audios[i].play()
+            this.paused_click(i)
+          }
+          this.pauseAll(i);
+        }
+        await this.$set(this.tableData[index],'isShow',false)
+      },
+      //点击触发暂停事件
+      paused_click(index) {
+
+        var audios = document.getElementsByTagName('audio');
+        for (let j = audios.length - 1; j >= 0; j--) {
+          if (j != index) audios[j].pause();
+        }
+      },
+      pauseClick(index){
+        this.$set(this.tableData[index],'isShow',true)
+      },
+      //播放完毕，按钮回归播放状态
+      ended(row) {
+        row.isShow = true
+      },
     };
 </script>
 
@@ -146,4 +205,5 @@ article {
   display: block;
   float: left;
 }
+
 </style>
