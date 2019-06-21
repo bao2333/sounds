@@ -41,7 +41,7 @@
         </ul>
       </div>
 
-      <!-- 分类的弹窗 -->
+      <!-- 一级二级分类的弹窗 -->
       <el-dialog :title="markTitle" :visible.sync="centerDialogVisible" width="30%" center>
         <el-input v-model="firstTitle" v-if="type == 1" placeholder="输入一级分类"></el-input>
         <el-input v-model="secondTitle" v-else placeholder="输入二级分类"></el-input>
@@ -50,46 +50,20 @@
           <el-button type="primary" @click="determine">确 定</el-button>
         </span>
       </el-dialog>
-      
-      <!-- 修改的弹窗 -->
-      <el-dialog
-        title="修改"
-        :visible.sync="centerDialogVisibleEdit"
-        width="30%"
-        center>
+
+      <!-- 修改分类的弹窗 -->
+      <el-dialog title="修改分类" :visible.sync="centerDialogVisibleEdit" width="30%" center>
         <el-input v-model="changeFirstTypeName" placeholder="请输入修改的一级分类" v-if="type == 1"></el-input>
         <el-input v-model="changeSecondTypeName" placeholder="请输入修改的二级分类" v-else></el-input>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="centerDialogVisible = false">取 消</el-button>
+          <el-button @click="centerDialogVisibleEdit = false">取 消</el-button>
           <el-button type="primary" @click="centerEdit">确 定</el-button>
         </span>
       </el-dialog>
 
-
       <!-- <router-view></router-view> -->
+      <!-- 图片的展示列表 -->
       <div class="box-pic">
-        <!-- <ul class="piclist">
-          <li class="pic" v-for="(item, index) in pictureList" :key="index">
-            <img :src="$oss.url + item.picture" alt="" width="343" height="171.5">
-            <div class="box-item">
-              <div class="headline">
-                {{item.title}}
-              </div>
-              <div class="introduction">
-                {{item.content}}
-              </div>
-            </div>
-            <div class="mark">
-              <div class="center">
-                <el-button circle type="primary" icon="el-icon-edit" @click="edit(item)"></el-button>
-                <el-button circle type="danger" icon="el-icon-delete" @click="delPic(item.id)"></el-button>
-              </div>
-            </div>
-          </li>
-          <li class="last pic">
-            <el-button type="primary" @click="uploadMark">上传</el-button>
-          </li>
-        </ul> -->
         <el-button type="primary" @click="uploadMark">上传</el-button>
         <el-table ref="tab" :data="pictureList" row-key="id" border style="width: 100%">
           <el-table-column prop="id" label="id" align="center">
@@ -110,34 +84,64 @@
             </template>
           </el-table-column>
         </el-table>
+
+        <!-- 上传标题 简介 图片的弹窗 -->
         <el-dialog title="提示" :visible.sync="centerDialogVisibleImg" width="30%" center>
           <div class="boxImg">
             <el-input v-model="title" placeholder="请输入标题"></el-input>
             <el-input v-model="introduction" placeholder="请输入内容简介"></el-input>
             <!-- 上传图片 -->
-            <div class="add_head" @click="selectIcon(0)">
+            <img :src="$oss.url + editorImg" alt="" width="300" height="150">
+            <!-- <div class="add_head" @click="selectIcon(0)">
               <img :src="$oss.url + editorImg" alt width="100%">
               <i class="el-icon-plus avatar-uploader-icon" v-show="plusShow"></i>
             </div>
-            <input accept="image/jpeg, image/png" ref="iconFile" @change="iconFileChange" type="file" name="icon"
-              style="display: none">
+            <input accept="image/jpeg, image/png" ref="iconFile" @change="iconFileChange" type="file" name="icon" style="display: none"> -->
+            <el-button type="primary" @click="uploadCropImg">上传图片</el-button>
           </div>
           <span slot="footer" class="dialog-footer">
             <el-button @click="centerDialogVisibleImg = false">取 消</el-button>
             <el-button type="primary" @click="dermine">确 定</el-button>
           </span>
         </el-dialog>
+
+        <!-- 裁剪图片的弹窗 -->
+        <el-dialog title="提示" :visible.sync="CropImage" width="50%" center>
+          <div class="content">
+            <div class="show-info">
+              <h2>自动生成截图框 固定比例 w : h => 2 : 1</h2>
+              <div class="test">
+                <vueCropper ref="cropper2" :img="example2.img " :outputSize="example2.size"
+                  :outputType="example2.outputType" :info="example2.info" :canScale="example2.canScale"
+                  :autoCrop="example2.autoCrop" :autoCropWidth="example2.autoCropWidth"
+                  :autoCropHeight="example2.autoCropHeight" :fixed="example2.fixed" :fixedNumber="example2.fixedNumber">
+                </vueCropper>
+              </div>
+              <label class="btn" for="upload2">上传</label>
+              <input type="file" id="upload2" style="position:absolute; clip:rect(0 0 0 0);"
+                accept="image/png, image/jpeg, image/gif, image/jpg" @change="uploadImg($event,2)">
+              <button @click="finish2()" class="btn">裁剪</button>
+            </div>
+          </div>
+          <span slot="footer" class="dialog-footer">
+            <el-button @click="centerDialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="DetermineCroppedImage">确 定</el-button>
+          </span>
+        </el-dialog>
+
       </div>
     </div>
   </div>
 </template>
 
 <script>
+  import vueCropper from 'vue-cropper'
   import * as OSS from "ali-oss";
-import { type } from 'os';
+
   export default {
     data() {
       return {
+        CropImage: false,
         centerDialogVisible: false,
         centerDialogVisibleImg: false,
         centerDialogVisibleEdit: false,
@@ -147,8 +151,8 @@ import { type } from 'os';
         secondTitle: '', //二级分类的标题
         PrimaryClassification: [], //一级分类内容
         SecondaryClassification: [], //二级分类内容
-        firstnum: 0,
-        secondnum: null,
+        firstnum: 0,    //选中一级分类的下标
+        secondnum: null,  //选中的二级分类的下标
         plusShow: true,
         editorImg: '', //头像地址
         title: '', //标题
@@ -156,11 +160,39 @@ import { type } from 'os';
         pictureList: [], //图片的列表
         type: -1, //判断当前的点击类型
         addAudio: '', //音频地址
-        pictureId: '', //图片Id
-        pictureAddress: '', //图片地址
-        changeFirstTypeName: '',  //修改分类的内容
-        changeSecondTypeName: ''
+        changeFirstTypeName: '', //修改一级分类的内容
+        changeSecondTypeName: '', //修改二级分类的内容
+
+        //裁剪图片的变量
+        model: false,
+        modelSrc: '',
+        crap: false,
+        previews: {},
+        form: {
+          head: ''
+        },
+        example2: {
+          //img的路径自行修改
+          //   img: '$oss.url + \'/\' + form.head ',
+          img: '$oss.url + form.head ',
+          info: true,
+          size: 1,
+          outputType: 'jpeg',
+          canScale: true,
+          autoCrop: true,
+          // 只有自动截图开启 宽度高度才生效
+          autoCropWidth: 300,
+          autoCropHeight: 150,
+          fixed: true,
+          // 真实的输出宽高
+          infoTrue: true,
+          fixedNumber: [2, 1]
+        },
+        downImg: '#'
       }
+    },
+    components: {
+      vueCropper
     },
     created() {
       this.GetClassification()
@@ -169,28 +201,29 @@ import { type } from 'os';
     mounted() {
       const el = this.$refs.tab.$el.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]
       new Sortable(el, {
-          animation: 150,
-          onEnd: evt => {
-            this.$api.ClassificationManagement.ChangeImageOrder(data => {
-              var firstId = this.PrimaryClassification[this.firstnum].id
-              if (this.SecondaryClassification.length) {
-                var secondId = this.SecondaryClassification[this.secondnum].id
-              }
-              if(secondId && firstId) {
-                this.getPicture(secondId)
-              } else {
-                this.getPicture(firstId)
-              }
-            }, {
-              beSort: this.pictureList[evt.oldIndex].sort,
-              beSortId: this.pictureList[evt.oldIndex].id,
-              sort: this.pictureList[evt.newIndex].sort,
-              sortId: this.pictureList[evt.newIndex].id
-            })
-          }
+        animation: 150,
+        onEnd: evt => {
+          this.$api.ClassificationManagement.ChangeImageOrder(data => {
+            var firstId = this.PrimaryClassification[this.firstnum].id
+            if (this.SecondaryClassification.length) {
+              var secondId = this.SecondaryClassification[this.secondnum].id
+            }
+            if (secondId && firstId) {
+              this.getPicture(secondId)
+            } else {
+              this.getPicture(firstId)
+            }
+          }, {
+            beSort: this.pictureList[evt.oldIndex].sort,
+            beSortId: this.pictureList[evt.oldIndex].id,
+            sort: this.pictureList[evt.newIndex].sort,
+            sortId: this.pictureList[evt.newIndex].id
+          })
+        }
       })
     },
     methods: {
+      //增加分类
       add(type) {
         // type为分类的等级  0为1级分类  1为2级分类 
         this.centerDialogVisible = true
@@ -202,6 +235,7 @@ import { type } from 'os';
           this.markTitle = '添加二级分类'
         }
       },
+      //删除分类
       del(type) {
         // type为 1 是删除一级分类
         // type为 2 是删除二级分类
@@ -228,7 +262,7 @@ import { type } from 'os';
             });
           });
         } else if (type == 2) {
-          this.$confirm('此操作将永久删除该标签, 是否继续?', '提示', {
+          this.$confirm('此操作将永久删除该分类, 是否继续?', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
@@ -252,34 +286,36 @@ import { type } from 'os';
           });
         }
       },
+      //修改分类
       editType(type) {
         // type为1 是修改1级分类  type为2 是修改2级分类
         this.centerDialogVisibleEdit = true
-        if(type == 1) {
+        if (type == 1) {
           this.type = 1
           const editElementTypeName = this.PrimaryClassification[this.firstnum].typeName
-          this.changeFirstTypeName = editElementTypeName 
+          this.changeFirstTypeName = editElementTypeName
         } else if (type == 2) {
           this.type = 2
           const editElementTypeName = this.SecondaryClassification[this.secondnum].typeName
           this.changeSecondTypeName = editElementTypeName
         }
       },
+      //修改分类确定
       centerEdit() {
         this.centerDialogVisibleEdit = false
-        if(this.type == 1) {
-            const editElementId= this.PrimaryClassification[this.firstnum].id
-            this.$api.ClassificationManagement.UpdateClassification(data => {
-              this.GetClassification()
-              this.$message({
-                message: '修改成功',
-                type: 'success'
-              })
-            }, {
-              typeName: this.changeFirstTypeName,
-              id: editElementId
+        if (this.type == 1) {
+          const editElementId = this.PrimaryClassification[this.firstnum].id
+          this.$api.ClassificationManagement.UpdateClassification(data => {
+            this.GetClassification()
+            this.$message({
+              message: '修改成功',
+              type: 'success'
             })
-        } else if(this.type == 2) {
+          }, {
+            typeName: this.changeFirstTypeName,
+            id: editElementId
+          })
+        } else if (this.type == 2) {
           const editElementId = this.SecondaryClassification[this.secondnum].id
           this.$api.ClassificationManagement.UpdateClassification(data => {
             const firstId = this.PrimaryClassification[this.firstnum].id
@@ -294,6 +330,7 @@ import { type } from 'os';
           })
         }
       },
+      //添加分类确定
       determine() {
         this.centerDialogVisible = false
         if (this.type == 1) {
@@ -321,18 +358,20 @@ import { type } from 'os';
           })
         }
       },
+      //点击一级分类
       firstContent(index) {
         this.firstnum = index
         const firstId = this.PrimaryClassification[this.firstnum].id
         this.GetSecondClassification(firstId)
         this.getPicture(firstId)
       },
+      //点击二级分类
       secondContent(index) {
         this.secondnum = index
         const secondId = this.SecondaryClassification[this.secondnum].id
         this.getPicture(secondId)
       },
-      //查询一级分类
+      //获取一级分类
       GetClassification() {
         this.$api.ClassificationManagement.QueryClassification(data => {
           this.PrimaryClassification = data
@@ -348,7 +387,7 @@ import { type } from 'os';
           id
         })
       },
-      //获取图片
+      //根据id获取对应分类的图片
       getPicture(id) {
         this.$api.ClassificationManagement.GetCategoryImage(data => {
           this.pictureList = data
@@ -356,55 +395,10 @@ import { type } from 'os';
           id
         })
       },
-      //上传
-      selectIcon(type) {
-        // type为 0是图片  1为音频
-        if (type == 0) {
-          this.type = 0
-          this.$refs.iconFile.click();
-          this.$refs.iconFile.value = null;
-        } else if (type == 1) {
-          this.type = 1
-          this.$refs.audioFile.click();
-          this.$refs.audioFile.value = null;
-        }
-      },
-      iconFileChange(e) {
-        let file = e.target.files[0];
-        let reader = new FileReader();
-        reader.onload = e => {
-          let data = e.target.result;
-          this.$api.oss.update(data => {
-            new OSS.Wrapper({
-                region: "oss-cn-hangzhou",
-                accessKeyId: data.accessKeyId,
-                accessKeySecret: data.accessKeySecret,
-                stsToken: data.securityToken,
-                bucket: 'sounds-miyu'
-                // bucket: 'zhiyuan-hz'
-              })
-              .put(data.random, file)
-              .then(data => {
-                if (this.type == 0) {
-                  this.editorImg = data.name; //头像上传
-                  this.plusShow = false;
-                } else if (this.type == 1) {
-                  this.addAudio = data.name
-                }
-
-              })
-              .catch(function (err) {
-                console.error("error: %j", err);
-              });
-          }, {});
-          // };
-          // image.src = data;
-        };
-        reader.readAsDataURL(file);
-      },
       uploadMark() {
         this.centerDialogVisibleImg = true
       },
+      //添加分类确定
       dermine() {
         this.centerDialogVisibleImg = false
         var firstId = this.PrimaryClassification[this.firstnum].id
@@ -447,12 +441,10 @@ import { type } from 'os';
           })
         }
       },
-      center() {
-
-      },
       modify(item) {
 
       },
+      //删除图片
       delItem(id) {
         this.$confirm('此操作将永久删除该图片, 是否继续?', '提示', {
           confirmButtonText: '确定',
@@ -486,7 +478,89 @@ import { type } from 'os';
             message: '已取消删除'
           })
         })
-      }
+      },
+      //上传图片之前裁剪图片
+      uploadCropImg() {
+        this.CropImage = true
+      },
+      DetermineCroppedImage() {
+        this.CropImage = false
+      },
+      //base64转Blob
+      dataURLtoBlob(dataurl) {
+        var arr = dataurl.split(','),
+          mime = arr[0].match(/:(.*?);/)[1],
+          bstr = atob(arr[1]),
+          n = bstr.length,
+          u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], {
+          type: mime
+        });
+      },
+      //点击裁剪，这一步是可以拿到处理后的地址
+      finish2() {
+        this.$refs.cropper2.getCropData((data) => {
+          this.modelSrc = data
+          this.model = true;
+          //裁剪后的图片显示
+          this.example2.img = this.modelSrc;
+
+          //阿里云处理图片，项目的接口，这里可以不用，上面的地址打印即为base64的地址
+          this.$api.oss.update(data => {
+            new OSS.Wrapper({
+              //这里应该是有自己的配置的
+              region: 'oss-cn-hangzhou',
+              accessKeyId: data.accessKeyId,
+              accessKeySecret: data.accessKeySecret,
+              stsToken: data.securityToken,
+              bucket: 'sounds-miyu'
+            }).put(data.random, this.dataURLtoBlob(this.example2.img)).then(data => {
+
+              this.form.head = data.name;
+              this.modelSrc = this.form.head;
+              this.editorImg = this.modelSrc
+
+            }).catch(function (err) {
+              console.error('error: %j', err);
+            });
+          });
+          // console.log(this.modelSrc)
+        })
+
+      },
+      //上传
+      uploadImg(e, num) {
+        //上传图片
+        this.example2.img = ''
+        var file = e.target.files[0]
+        if (!/\.(gif|jpg|jpeg|png|bmp|GIF|JPG|PNG)$/.test(e.target.value)) {
+          alert('图片类型必须是.gif,jpeg,jpg,png,bmp中的一种')
+          return false
+        }
+        var reader = new FileReader()
+        reader.onload = (e) => {
+          let data
+          data = e.target.result
+          if (typeof e.target.result === 'object') {
+            // 把Array Buffer转化为blob 如果是base64不需要
+            data = window.URL.createObjectURL(new Blob([e.target.result]))
+          } else {
+            data = e.target.result
+          }
+          if (num === 1) {
+            this.option.img = data
+          } else if (num === 2) {
+            this.example2.img = data
+          }
+        }
+        // 转化为base64
+        // reader.readAsDataURL(file)
+        // 转化为blobcs
+        reader.readAsArrayBuffer(file)
+      },
     }
   }
 
@@ -503,7 +577,7 @@ import { type } from 'os';
       width: 100%;
       max-height: 150px;
       overflow-y: auto;
-      border-bottom: 1px solid black;
+      border-bottom: 1px solid #999;
 
       .labelList {
         display: flex;
@@ -541,7 +615,7 @@ import { type } from 'os';
     .piclist {
       display: flex;
       flex-wrap: wrap;
-      
+
       .pic {
         width: 343px;
         height: 171.5px;
@@ -636,6 +710,46 @@ import { type } from 'os';
       margin: 10px 0;
       min-height: 100px;
       border: 1px solid #999;
+    }
+  }
+
+  .content {
+    max-width: 585px;
+    margin-bottom: 100px;
+
+    .show-info {
+      margin-bottom: 50px;
+
+      h2 {
+        line-height: 50px;
+      }
+
+      .test {
+        height: 285px;
+      }
+
+      .btn {
+        display: inline-block;
+        line-height: 1;
+        white-space: nowrap;
+        cursor: pointer;
+        background: #fff;
+        border: 1px solid #c0ccda;
+        color: #1f2d3d;
+        text-align: center;
+        box-sizing: border-box;
+        outline: none;
+        margin: 20px 10px 0px 0px;
+        padding: 9px 15px;
+        font-size: 14px;
+        border-radius: 4px;
+        color: #fff;
+        background-color: #50bfff;
+        border-color: #50bfff;
+        transition: all .2s ease;
+        text-decoration: none;
+        user-select: none;
+      }
     }
   }
 

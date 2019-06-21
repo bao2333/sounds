@@ -582,9 +582,18 @@ export const find = {
         ajax(callback, request, error);
     },
     //审核通过
+    // shenhe_pass: (callback, data, error) => {
+    //     let request = {
+    //         url: '/officialArticle/passArticle',
+    //         method: 'post',
+    //         data: data
+    //     };
+    //     ajax(callback, request, error);
+    // },
+    //审核通过分类
     shenhe_pass: (callback, data, error) => {
         let request = {
-            url: '/officialArticle/passArticle',
+            url: '/officialArticle/checkArticle',
             method: 'post',
             data: data
         };
@@ -1277,7 +1286,6 @@ export const ClassificationManagement = {
         ajax(callback, request, error);
     },
 }
-
 
 
 function ajax(callback, request, error) {

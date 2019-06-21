@@ -14,7 +14,17 @@
       </el-table-column>
       <el-table-column label="声音" align="center">
         <template slot-scope="props">
-          <audio :src="$oss.url + props.row.voice" controls></audio>
+          <!-- <audio :src="$oss.url + props.row.voice" controls></audio> -->
+            <div class="box">
+              <button class="play_button" @click="play_click(props.row.voice, props.$index)" v-show="props.row.isShow === true">
+                <i class="ion ion-ios-play align-middle"></i>
+              </button>
+              <button class="play_button" @click="paused_click();pauseClick(props.$index)" v-show="props.row.isShow === false">
+                <i class="ion ion-ios-pause align-middle"></i>
+              </button>
+              <audio @ended="ended(props.row)" :src="$oss.url + props.row.voice" ref="personal_play"></audio>
+              <span>{{props.row.second}}s</span>
+            </div>
         </template>
       </el-table-column>
       <el-table-column label="图片" align="center">
@@ -23,28 +33,19 @@
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center">
-          <template slot-scope="props">
-            <!-- <el-button type="primary" size="mini"  @click="updata(props)">修改</el-button> -->
-            <el-button type="danger" size="mini"  @click="del(props)">删除</el-button>
-          </template>
+        <template slot-scope="props">
+          <!-- <el-button type="primary" size="mini"  @click="updata(props)">修改</el-button> -->
+          <el-button type="danger" size="mini" @click="del(props)">删除</el-button>
+        </template>
       </el-table-column>
     </el-table>
     <div class="block">
-      <el-pagination
-        background
-        @current-change="handleCurrentChange"
-        :current-page.sync="currentPage"
-        :page-size="10"
-        layout="total, prev, pager, next"
-        :total="total">
-      </el-pagination> 
+      <el-pagination background @current-change="handleCurrentChange" :current-page.sync="currentPage" :page-size="10"
+        layout="total, prev, pager, next" :total="total">
+      </el-pagination>
     </div>
     <!-- 上传音频 -->
-    <el-dialog
-      title="提示"
-      :visible.sync="centerDialogVisibleAudio"
-      width="30%"
-      center>
+    <el-dialog title="提示" :visible.sync="centerDialogVisibleAudio" width="30%" center>
       <!-- 上传音频 -->
       <el-button @click="selectPic">选择图片</el-button><br>
       <img :src="$oss.url + pictureAddress" alt="" width="200" height="100">
@@ -59,11 +60,7 @@
       </span>
     </el-dialog>
     <!-- 选择图片 -->
-    <el-dialog
-      title="提示"
-      :visible.sync="centerDialogVisibleImg"
-      width="60%"
-      center>
+    <el-dialog title="提示" :visible.sync="centerDialogVisibleImg" width="60%" center>
       <!-- 选择一级分类 -->
       <el-select v-model="value1" placeholder="请选择" @change="handleChange1">
         <el-option v-for="item in options1" :key="item.typeName" :label="item.typeName" :value="item.typeName">
@@ -106,7 +103,8 @@
         centerDialogVisibleImg: false,
         pictureId: '',
         pictureAddress: '',
-        total: 0
+        total: 0,
+        audioTime: null //音频时长
       }
     },
     created() {
@@ -124,6 +122,9 @@
         this.$api.ClassificationManagement.QueryOfficialAudio(data => {
           this.tableData = data.result
           this.total = data.pageInfo.total
+          this.tableData.map(item => {
+            this.$set(item, 'isShow', true)
+          })
         }, {
           pageNum: this.currentPage
         })
@@ -145,6 +146,18 @@
         if (!file.name.substring(file.name.lastIndexOf(".")) == ".png") {
           return;
         }
+
+        var url = URL.createObjectURL(file)
+        var audioElement = new Audio(url);
+        var duration;
+        var that = this
+        audioElement.addEventListener("loadedmetadata", function (_event) {
+          duration = audioElement.duration;
+          that.audioTime = Math.floor(duration)
+        });
+
+
+
         let reader = new FileReader();
         reader.onload = e => {
           let data = e.target.result;
@@ -177,7 +190,7 @@
       //选完一级分类后 显示所有的二级分类
       handleChange1() {
         const firstId = this.options1.filter(item => {
-          if(item.typeName == this.value1) {
+          if (item.typeName == this.value1) {
             return item
           }
         })
@@ -194,7 +207,7 @@
       },
       handleChange2() {
         const secondId = this.options2.filter(item => {
-          if(item.typeName == this.value2) {
+          if (item.typeName == this.value2) {
             return item
           }
         })
@@ -226,15 +239,11 @@
           this.$message({
             type: 'info',
             message: '已取消删除'
-          });          
+          });
         });
       },
       handleCurrentChange() {
-        this.$api.ClassificationManagement.QueryOfficialAudio(data => {
-          this.tableData = data.result
-        }, {
-          pageNum: this.currentPage
-        })
+        this.getAllAudio()
       },
       uploaded() {
         this.centerDialogVisibleAudio = true
@@ -247,7 +256,7 @@
         this.pictureAddress = item.picture
       },
       centerImg() {
-          this.centerDialogVisibleImg = false
+        this.centerDialogVisibleImg = false
       },
       centerAudio() {
         this.centerDialogVisibleAudio = false
@@ -260,44 +269,105 @@
         }, {
           voice: this.addAudio,
           picture: this.pictureAddress,
-          pictureId: this.pictureId
+          pictureId: this.pictureId,
+          second: this.audioTime
         })
       },
+      async play_click(src, index) {
+        await this.tableData.map(item => {
+          this.$set(item, 'isShow', true)
+        })
+        var audios = document.getElementsByTagName('audio')
+        let srcAudio = 'http://sounds-miyu.oss-cn-hangzhou.aliyuncs.com/' + src
+        for(let i = audios.length - 1; i >= 0; i--) {
+          if(audios[i].src == srcAudio) {
+            audios[i].play()
+            this.paused_click(i)
+          }
+        }
+        await this.$set(this.tableData[index], 'isShow', false)
+      },
+      paused_click(index) {
+        var audios = document.getElementsByTagName('audio')
+        for(let j = audios.length - 1; j >= 0; j--) {
+          if(j != index) audios[j].pause()
+        }
+      },
+      pauseClick(index) {
+        this.$set(this.tableData[index], 'isShow', true)
+      },
+      ended(row) {
+        row.isShow = true
+      }
     }
   }
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
   .upload {
     .el-button {
       margin: 10px 0;
     }
   }
+
   .block {
     float: right;
     width: 485px;
     margin-top: 30px;
+
     .el-pagination {
       width: 100%;
     }
   }
+
   .boxs {
     width: 300px;
     margin: 10px 0;
     min-height: 100px;
     border: 1px solid #999;
   }
+
   .imgList {
     display: flex;
     flex-wrap: wrap;
+
     li {
       margin: 5px;
+
       img {
         width: 100px;
         height: 50px;
         cursor: pointer;
       }
+    }
+  }
+
+
+ @theme_color: rgb(233, 116, 38);
+  .box {
+    width: 100px;
+    overflow: hidden;
+    background-color: rgba(233, 116, 38, .3);
+    border-radius: 15px;
+    margin-left: 50px;
+    span {
+      color: #fff;
+      float: right;
+      line-height: 30px;
+      margin-right: 12px;
+    }
+  }
+  .play_button {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    float: left;
+    background-color: @theme_color;
+    border: none;
+    cursor: pointer;
+    i {
+      color: #FFF;
     }
   }
 </style>

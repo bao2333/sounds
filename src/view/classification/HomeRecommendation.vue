@@ -2,7 +2,7 @@
   <div>
     <el-button type="primary" @click="addIndex">增加分类</el-button>
     <el-button type="primary" @click="addIndexPic">增加分类的图片</el-button>
-    <el-table ref="tab" :data="tableData" row-key="id"  border style="width: 100%">
+    <el-table ref="tab" :data="tableData" row-key="id" border style="width: 100%">
       <el-table-column prop="id" label="id" align="center">
       </el-table-column>
       <el-table-column prop="typeName" label="分类名称" align="center">
@@ -17,23 +17,15 @@
       <el-table-column label="操作" align="center">
         <template slot-scope="props">
           <!-- <el-button type="primary" size="mini"  @click="updata(props)">修改</el-button> -->
-          <el-button type="danger" size="mini"  @click="del(props)">删除</el-button>
+          <el-button type="danger" size="mini" @click="del(props)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
     <!-- 增加分类的弹窗 -->
-    <el-dialog
-      title="提示"
-      :visible.sync="centerDialogVisible"
-      width="30%"
-      center>
+    <el-dialog title="提示" :visible.sync="centerDialogVisible" width="30%" center>
       <el-input v-model="typeName" placeholder="请输入分类名称"></el-input>
       <el-select v-model="typeValue" placeholder="请选择" @change="valueChange">
-        <el-option
-          v-for="item in typeOptions"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value">
+        <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value">
         </el-option>
       </el-select>
       <span slot="footer" class="dialog-footer">
@@ -41,11 +33,8 @@
         <el-button type="primary" @click="dermine">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog
-      title="提示"
-      :visible.sync="centerDialogVisibleImg"
-      width="30%"
-      center>
+    <!-- 增加内容的分类 -->
+    <el-dialog title="提示" :visible.sync="centerDialogVisibleImg" width="30%" center>
       <el-select v-model="value" placeholder="请选择" @change="handleChange">
         <el-option v-for="item in options" :key="item.id" :label="item.typeName" :value="item.typeName">
         </el-option>
@@ -57,7 +46,7 @@
       </div>
       <input accept="image/jpeg, image/png" ref="iconFile" @change="iconFileChange" type="file" name="icon" style="display: none">
       <span slot="footer" class="dialog-footer">
-        <el-button @click="centerDialogVisible = false">取 消</el-button>
+        <el-button @click="centerDialogVisibleImg = false">取 消</el-button>
         <el-button type="primary" @click="dermineImg">确 定</el-button>
       </span>
     </el-dialog>
@@ -65,8 +54,8 @@
 </template>
 
 <script>
-import * as OSS from "ali-oss";
-// https://www.cnblogs.com/xiangsj/p/6628003.html
+  import * as OSS from "ali-oss";
+  // https://www.cnblogs.com/xiangsj/p/6628003.html
   export default {
     data() {
       return {
@@ -77,23 +66,23 @@ import * as OSS from "ali-oss";
         editorImg: '',
         typeName: '',
         typeId: '',
-        value:'',
+        value: '',
         title: '',
         options: [],
         typeOptions: [{
-            value: '1',
-            label: '官方'
-          }, {
-            value: '2',
-            label: '秀音'
-          }, {
-            value: '3',
-            label: '推荐'
-          }, {
-            value: '4',
-            label: '人声'
-          }],
-          typeValue: ''
+          value: '1',
+          label: '官方'
+        }, {
+          value: '2',
+          label: '秀音'
+        }, {
+          value: '3',
+          label: '推荐'
+        }, {
+          value: '4',
+          label: '人声'
+        }],
+        typeValue: ''
       }
     },
     created() {
@@ -102,20 +91,21 @@ import * as OSS from "ali-oss";
     mounted() {
       const el = this.$refs.tab.$el.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]
       new Sortable(el, {
-          animation: 150,
-          onEnd: evt => {
-            this.$api.ClassificationManagement.ChangeCategorySort(data => {
-              this.getData()
-            }, {
-              beSort: this.tableData[evt.oldIndex].sort,
-              beSortId: this.tableData[evt.oldIndex].id,
-              sort: this.tableData[evt.newIndex].sort,
-              sortId: this.tableData[evt.newIndex].id
-            })
-          }
+        animation: 150,
+        onEnd: evt => {
+          this.$api.ClassificationManagement.ChangeCategorySort(data => {
+            this.getData()
+          }, {
+            beSort: this.tableData[evt.oldIndex].sort,
+            beSortId: this.tableData[evt.oldIndex].id,
+            sort: this.tableData[evt.newIndex].sort,
+            sortId: this.tableData[evt.newIndex].id
+          })
+        }
       })
     },
     methods: {
+      // 获取首页上面四个的分类
       getData() {
         this.$api.ClassificationManagement.QueryHorizontalContent(data => {
           this.tableData = data
@@ -126,6 +116,7 @@ import * as OSS from "ali-oss";
       updata(props) {
 
       },
+      //删除分类
       del(props) {
         this.$confirm('此操作将永久删除该分类, 是否继续?', '提示', {
           confirmButtonText: '确定',
@@ -145,7 +136,7 @@ import * as OSS from "ali-oss";
           this.$message({
             type: 'info',
             message: '已取消删除'
-          });          
+          });
         });
       },
       addIndex() {
@@ -177,7 +168,7 @@ import * as OSS from "ali-oss";
           this.getData()
           this.editorImg = ''
           this.title = ''
-          this.value  = ''
+          this.value = ''
         }, {
           picture: this.editorImg,
           id: this.typeId,
@@ -187,7 +178,7 @@ import * as OSS from "ali-oss";
       },
       handleChange() {
         const typeId = this.options.filter(item => {
-          if(item.typeName == this.value) {
+          if (item.typeName == this.value) {
             return item
           }
         })
@@ -216,8 +207,8 @@ import * as OSS from "ali-oss";
               })
               .put(data.random, file)
               .then(data => {
-                  this.editorImg = data.name; //头像上传
-                  this.plusShow = false;
+                this.editorImg = data.name; //头像上传
+                this.plusShow = false;
               })
               .catch(function (err) {
                 console.error("error: %j", err);
@@ -234,24 +225,26 @@ import * as OSS from "ali-oss";
 </script>
 
 <style lang="scss" scoped>
-.add_head {
-      width: 343px;
-      height: 171.5px;
-      border: 1px dashed #ccc;
-      margin-top: 10px;
-      position: relative;
-      cursor: pointer;
+  .add_head {
+    width: 343px;
+    height: 171.5px;
+    border: 1px dashed #ccc;
+    margin-top: 10px;
+    position: relative;
+    cursor: pointer;
 
-      i {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        margin-left: -12.5px;
-        margin-top: -12.5px;
-        font-size: 25px;
-      }
+    i {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      margin-left: -12.5px;
+      margin-top: -12.5px;
+      font-size: 25px;
     }
+  }
+
   .el-input {
     margin: 5px 0;
   }
+
 </style>

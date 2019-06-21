@@ -17,6 +17,10 @@ import * as api from './Api'
 import Viewer from 'v-viewer'
 import 'viewerjs/dist/viewer.css'
 
+import VueCropper from "vue-cropper"
+Vue.use(VueCropper)
+
+
 //Vue.use(Viewer) 默认配置写法
 Vue.use(Viewer, {
   defaultOptions: {

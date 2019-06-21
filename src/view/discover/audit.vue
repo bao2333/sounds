@@ -121,21 +121,23 @@
         </template>
       </el-table-column>
       <el-table-column label="分类" align="center" width="70">
-        官方默认
+        <template>
+          官方默认
+        </template>
       </el-table-column>
       <el-table-column label="状态" align="center" width="110">
         <template slot-scope="props">
           <el-button type="primary" size="mini" plain class="caozuoBtn zdBtn" v-if="tuijianShow"
-                     @click="shenhePass(props.row,1)">审核通过
-          </el-button>
-          <el-button type="success" style="margin-left:0" size="mini" plain class="caozuoBtn" v-if="tongguozhidingShow"
-                     @click="passZhiding(props.row)">通过并置顶
-          </el-button>
-          <el-button type="danger" style="margin-left:0" size="mini" plain class="caozuoBtn" v-if="tuijianShow"
-                     @click="shenhePass(props.row,0)">审核不通过
+                     @click="shenhePass(props.row, 1)">审核通过
           </el-button>
           <el-button type="success" style="margin-left:0" size="mini" plain class="caozuoBtn" v-if="tuijianShow"
-                     @click="classification(props.row)">分类
+                     @click="classification(props.row)">审核通过并分类
+          </el-button>
+          <!-- <el-button type="success" style="margin-left:0" size="mini" plain class="caozuoBtn" v-if="tongguozhidingShow"
+                     @click="passZhiding(props.row)">通过并置顶
+          </el-button> -->
+          <el-button type="danger" style="margin-left:0" size="mini" plain class="caozuoBtn" v-if="tuijianShow"
+                     @click="shenhePass(props.row, 0)">审核不通过
           </el-button>
           <el-button type="danger" style="margin-left:0" size="mini" class="caozuoBtn" v-if="noshenheShow"
                      @click="deleteArticle(props.row.id)">删除
@@ -184,14 +186,36 @@
     </el-dialog>
     
     <el-dialog title="分类" :visible.sync="classificationShow" width="30%" center>
-      <el-cascader
-        v-model="classificationValue"
-        :options="options"
-        :props="{ label: 'typeName' }"
-        @change="handleChange">
-      </el-cascader>
+      <!-- 一级分类 -->
+      <el-select v-model="FirstClassificationValue" placeholder="请选择" @change="handleChange1">
+        <el-option
+          v-for="item in options1"
+          :key="item.id"
+          :label="item.typeName"
+          :value="item.typeName"
+        >
+        </el-option>
+      </el-select>
+      <!-- 二级分类 -->
+      <el-select v-model="SecondClassificationValue" placeholder="请选择" @change="handleChange2">
+        <el-option
+          v-for="item in options2"
+          :key="item.id"
+          :label="item.typeName"
+          :value="item.typeName"
+        >
+        </el-option>
+      </el-select>
+      <!-- 图片的显示 -->
       <div class="imgBox">
-        <img :src="$oss.url" alt="">
+        <ul class="imglist">
+          <li v-for="(item, index) in imgList" :key="index">
+            <img :src="$oss.url + item.picture" alt="" width="150" height="75" @click="chooseImg(index, item.id)">
+            <div class="selectMark" v-show=" SelectedImageIndex == index ">
+              <i class="el-icon-check"></i>
+            </div>
+          </li>
+        </ul>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="centerDialogVisible = false">取 消</el-button>
@@ -203,7 +227,7 @@
 
 <script>
   import audioPlayer from '../../components/audioPlayer'
-
+  import moment from "moment"
   export default {
     name: "audit", //发现审核
     components: {
@@ -246,8 +270,13 @@
         newArrUser: '',
         multipleSelection:[],   //批量审核  选中的当前行的所有信息
         classificationShow: false,
-        classificationValue: [],
-        options: []
+        FirstClassificationValue: '',
+        SecondClassificationValue: '',
+        options1: [],
+        options2: [],
+        SelectImage: '',
+        imgList: [],
+        SelectedImageIndex: -1
       };
     },
     async created() {
@@ -409,6 +438,9 @@
               }, {
                 id: row.id,
                 userId: row.userId,
+                checkType: 1,
+                typeName: '默认',
+                createTime: moment(new Date(row.createTime)).format("YYYY-MM-DD HH:mm:ss")
               })
             })
             .catch(() => {
@@ -578,7 +610,6 @@
       },
       //是否设置为优质内容
       highQuality(row) {
-        console.log(row)
         this.containRow = row.highQuality == 0 ? '优质' : '非优质'
           this.$confirm(`<p>确定要改变此文章设置为<span style="color:red;font-size: 16px"> ${this.containRow} 内容</span>吗？</p>`, '提示', {
             confirmButtonText: '确定',
@@ -603,36 +634,53 @@
             });
           });
       },
+      //分类内容
       classification(prop) {
         this.classificationShow = true
         this.$api.ClassificationManagement.QueryClassification(data => {
-          // this.options = data
-          for(let i = 0; i < data.length; i++) {
-            data[i].value = data[i].id
-            this.options.push(data[i])
-            this.$api.ClassificationManagement.QueryClassification(data => {
-              console.log(data)
-              // if(data.length) {
-              //   for(let i = 0; i < data.length; i++) {
-              //     data[i].value = data[i].id
-              //     this.$set(this.options[i], "children", data)   
-              //     this.$set(this.options[i].children, "value", data[i].id)
-              //   }
-              // }
-            }, {
-              id: data[i].id
-            })
-          }
-          // console.log(this.options)
+            this.options1 = data
         }, {
           id: 0
         })
       },
       determine() {
         this.classificationShow = false
+        const firstTypeName = this.FirstClassificationValue
+        const SecondTypeName = this.FirstClassificationValue
+        this.shenhePass(row, 1)
       },
-      handleChange() {
-        console.log(this.classificationValue)
+      handleChange1() {
+        const firstItem = this.options1.filter(item => {
+          if(item.typeName == this.FirstClassificationValue) {
+            return item
+          }
+        })
+        this.$api.ClassificationManagement.QueryClassification(data => {
+          this.options2 = data
+        }, {
+          id: firstItem[0].id
+        })
+        this.$api.ClassificationManagement.GetCategoryImage(data => {
+          this.imgList = data
+        }, {
+          id: firstItem[0].id
+        })
+      },
+      handleChange2() {
+        const secondItem = this.options2.filter(item => {
+          if(item.typeName == this.SecondClassificationValue) {
+            return item
+          }
+        })
+        this.$api.ClassificationManagement.GetCategoryImage(data => {
+          console.log(data)
+          this.imgList = data
+        }, {
+          id: secondItem[0].id
+        })
+      },
+      chooseImg(index, id) {
+        this.SelectedImageIndex = index
       }
     }
   };
@@ -733,10 +781,37 @@
   }
 
   .imgBox {
-    width: 400px;
+    width: 450px;
     height: 200px;
     margin-top: 10px;
     border: 1px solid #eee;
+    overflow-y: auto;
+    .imglist {
+      display: flex;
+      flex-wrap: wrap;
+      li {
+        margin: 5px;
+        cursor: pointer;
+        position: relative;
+        .selectMark {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          background: #000;
+          opacity: 0.7;
+          color: #fff;
+          i {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+          }
+        }
+      }
+    }
   }
 </style>
 <style>
