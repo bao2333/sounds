@@ -79,10 +79,10 @@
                         id:id
                     })
                 }).catch(() => {
-                this.$message({
-                    type: 'info',
-                    message: '已取消删除'
-                });
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
                 });
 
             },
@@ -117,7 +117,7 @@
     float: left;
     margin:10px 30px;
     border-top-right-radius: 15px;
-   input{
+    input{
         display: inline-block;
         width: 98px;
         position: absolute;

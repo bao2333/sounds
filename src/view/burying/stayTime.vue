@@ -12,6 +12,20 @@
     </div>
 
 
+          <!-- pc端的轮播图 -->
+          <!-- <div class="add_head" @click="selectIcon(0)">
+            <img :src="$oss.url + editorImg" alt width="100%">
+            <i class="el-icon-plus avatar-uploader-icon" v-show="plusShow"></i>
+          </div>
+          <input accept="image/jpeg, image/png" ref="iconFile" @change="iconFileChange" type="file" name="icon" style="display: none"> -->
+
+
+
+
+
+
+
+
     <!-- 图片裁剪 -->
     <!-- <div class="wrapper">
       <div class="model" v-show="model" @click="model = false">
@@ -37,6 +51,11 @@
       </div>
     </div> -->
 
+    <!-- 判断a标签是否支持下载功能 -->
+  <!-- var supportDownload = "download" in document.createElement("a");
+    if(!supportDownload){
+        //        code...
+    } -->
 
 
   </div>
@@ -49,6 +68,8 @@
   export default {
     data() {
       return {
+        editorImg: '',
+        plusShow: true,
         value: '',
         model: false,
         modelSrc: '',
@@ -95,6 +116,7 @@
           templateid: this.value
         })
       },
+
       //base64转Blob
       dataURLtoBlob(dataurl) {
         var arr = dataurl.split(','),
@@ -169,6 +191,62 @@
         // 转化为blobcs
         reader.readAsArrayBuffer(file)
       },
+
+      selectIcon(type) {
+        // type为 0是图片  1为音频
+        if(type == 0) {
+          this.type = 0
+          this.$refs.iconFile.click();
+          this.$refs.iconFile.value = null;
+        } else if(type == 1) {
+          this.type = 1
+          this.$refs.audioFile.click();
+          this.$refs.audioFile.value = null;
+        }
+        
+      },
+      iconFileChange(e) {
+        let file = e.target.files[0];
+        let reader = new FileReader();
+        reader.onload = e => {
+          let data = e.target.result;
+          this.$api.oss.update(data => {
+            new OSS.Wrapper({
+                region: "oss-cn-hangzhou",
+                accessKeyId: data.accessKeyId,
+                accessKeySecret: data.accessKeySecret,
+                stsToken: data.securityToken,
+                bucket: 'sounds-miyu'
+                // bucket: 'zhiyuan-hz'
+              })
+              .put(data.random, file)
+              .then(data => {
+                if(this.type == 0) {
+                  this.editorImg = data.name; //头像上传
+                  this.plusShow = false;
+                  this.$api.userAnalysis.addBanner(data => {
+                    this.$message({
+                      message: '添加成功',
+                      type: 'success'
+                    })
+                  }, {
+                    picture: data.name
+                  })
+                } else if(this.type == 1) {
+                  this.addAudio = data.name
+                }
+              })
+              .catch(function (err) {
+                console.error("error: %j", err);
+              });
+          }, {});
+          // };
+          // image.src = data;
+        };
+        reader.readAsDataURL(file);
+      },
+
+
 
     }
   }
@@ -327,4 +405,23 @@
       height: 400px;
     }
   }
+
+  .add_head {
+      width: 343px;
+      height: 171.5px;
+      border: 1px dashed #ccc;
+      float: left;
+      position: relative;
+
+      cursor: pointer;
+
+      i {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -12.5px;
+        margin-top: -12.5px;
+        font-size: 25px;
+      }
+    }
 </style>

@@ -21,12 +21,12 @@
       </el-input>
       <el-input v-model="search.userPhone" placeholder="输入电话号码" size="mini" style="float:left;width:150px;margin: 0 10px;" clearable>
       </el-input>
-      <el-button type="primary" plain size="mini" style="float:left;margin-left:10px;" @click="showList()">查询
-      </el-button>
-      <!-- <el-button type="primary" plain size="mini" style="float:left;margin-left:10px; margin-top: 0;" @click="checkClass()">查询分类
-      </el-button>
-      <el-button type="primary" plain size="mini" style="float:left;margin-left:10px; margin-top: 0;" @click="checkDefaultClass()">查询默认分类
+      <!-- <el-button type="primary" plain size="mini" style="float:left;margin-left:10px;" @click="showList()">查询
       </el-button> -->
+      <!-- <el-button type="primary" plain size="mini" style="float:left;margin-left:10px; margin-top: 0;" @click="checkClass()">查询分类
+      </el-button> -->
+      <el-button type="primary" plain size="mini" style="float:left;margin-left:10px; margin-top: 0;" @click="checkDefaultClass()">查询默认分类
+      </el-button>
       <el-button type="success" size="mini" style="float:right;margin:0px;" @click="batch()" v-if="flag">批量审核
       </el-button>
     </div>
@@ -453,9 +453,9 @@
         this.imgurl = url
         this.deg = 0
       },
-      handleCurrentChange(val) {     
-        this.page = val;
-        this.showList();
+      handleCurrentChange(val) {
+          this.page = val;
+          this.showList();   
       },
       // 列表展示，搜索
       async showList() {
@@ -495,7 +495,7 @@
           coverType: this.search.type == '' ? null : parseInt(this.search.type),
           userName: this.search.userName == '' ? null : this.search.userName,
           userPhone: this.search.userPhone == '' ? null : this.search.userPhone,
-          typeId: this.search.classify == '' ? null : this.search.classify
+          typeId: 0
         })
       },
       //审核通过
@@ -869,9 +869,10 @@
       },
       //推荐文章分类
       ArticleClass(prop) {
-        console.log(prop)
         if(prop.pictureResources) {
           this.existingArticlePicture = prop.pictureResources[0]
+        } else {
+          this.existingArticlePicture = ''
         }
         this.ArticleShow = true 
         this.$api.ClassificationManagement.QueryClassification(data => {
@@ -890,6 +891,7 @@
             this.FirstArticleValue = ''
             this.SecondArticleValue = ''
             this.existingArticlePicture = ''
+            this.imgList = []
           }, {
             id: this.ArticleInfo.id,
             checkType: 1,
@@ -903,6 +905,7 @@
             this.FirstArticleValue = ''
             this.SecondArticleValue = ''
             this.existingArticlePicture = ''
+            this.imgList = []
           }, {
             id: this.ArticleInfo.id,
             checkType: 1,
@@ -917,19 +920,11 @@
       //查询分类
       checkClassItem() {
         this.centerDialogVisibleClass = false
-        this.showList()
+        // this.showList()
+        window.localStorage.setItem('class', '222')
         const page = this.page
         const pl_page = this.pl_page
         this.loading = true;
-        this.FiveValue = ''
-        this.SixValue = ''
-        // this.search.classify = ''
-      },
-      checkDefaultClass() {
-        window.localStorage.setItem('type', 'default')
-        const page = this.page
-        const pl_page = this.pl_page
-        this.loading = true
         this.$api.find.find_audit(data => {
           this.loading = false;
           this.tableData = data.result;
@@ -963,8 +958,18 @@
           coverType: this.search.type == '' ? null : parseInt(this.search.type),
           userName: this.search.userName == '' ? null : this.search.userName,
           userPhone: this.search.userPhone == '' ? null : this.search.userPhone,
-          typeId:  0
+          typeId: this.search.classify
         })
+        this.FiveValue = ''
+        this.SixValue = ''
+        // this.search.classify = ''
+      },
+      checkDefaultClass() {
+        window.localStorage.setItem('type', 'default')
+        const page = this.page
+        const pl_page = this.pl_page
+        this.loading = true
+        this.showList()
       }
     }
   };

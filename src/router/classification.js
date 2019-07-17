@@ -38,6 +38,22 @@ export default [{
         title:'首页推荐内容'
       },
       component: resolve => require(['@/view/classification/HomeRecommendation.vue'],resolve),
+    },
+    {
+      path: 'secondsort',
+      name: 'secondsort',
+      meta:{
+        title:'二级分类排序'
+      },
+      component: resolve => require(['@/view/classification/secondSort.vue'],resolve),
+    },
+    {
+      path: 'recommendedtoday',
+      name: 'recommendedtoday',
+      meta:{
+        title:'今日推荐'
+      },
+      component: resolve => require(['@/view/classification/RecommendedToday.vue'],resolve),
     }
   ]
 }]

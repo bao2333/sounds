@@ -20,6 +20,7 @@ import loginRoutes from './login'
 import burying from './burying'
 import classification from './classification'
 import adminPermission from './adminPermission'
+import workclassify from './workclassify'
 
 const ROUTES = [
   { path: '', redirect: '/login'},
@@ -37,6 +38,7 @@ const ROUTES = [
   .concat(burying)
   .concat(classification)
   .concat(adminPermission)
+  .concat(workclassify)
 
 const router = new Router({
   base: '/',

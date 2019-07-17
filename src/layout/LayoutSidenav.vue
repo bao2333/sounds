@@ -39,7 +39,10 @@
         <template slot="link-text">发现管理</template>
         <sidenav-router-link  to="/discover/official" :exact="true">官方动态</sidenav-router-link>
         <sidenav-router-link  to="/discover/editor" :exact="true" v-if="$route.name == 'discoverEditor'">编辑动态</sidenav-router-link>
+        <sidenav-router-link  to="/discover/userRecordingManagement" :exact="true">用户录音管理</sidenav-router-link>
         <sidenav-router-link  to="/discover/audit" :exact="true">用户文章管理</sidenav-router-link>
+        <sidenav-router-link  to="/discover/search" :exact="true">查询分类</sidenav-router-link>
+        <sidenav-router-link  to="/discover/searchdefault" :exact="true">查询默认分类</sidenav-router-link>
       </sidenav-menu>
       <sidenav-router-link  icon="ion ion-ios-card" :to="{name:'MoneyShenfenshenhe'}" >身份审核</sidenav-router-link>
       <sidenav-menu icon="ion ion-md-information-circle-outline" :active="isMenuActive('/information')" :open="isMenuOpen('/information')">
@@ -47,6 +50,7 @@
         <sidenav-router-link  to="/information/official" :exact="true">官方消息</sidenav-router-link>
         <sidenav-router-link  to="/information/activity" :exact="true">推送活动</sidenav-router-link>
         <sidenav-router-link  to="/information/activity" :exact="true"  v-if="$route.name == 'informationAdd'">新增活动</sidenav-router-link>
+        <sidenav-router-link  to="/information/rollingBroadcast" :exact="true">滚动广播</sidenav-router-link>
       </sidenav-menu>
       <sidenav-menu icon="ion ion-ios-bowtie" :active="isMenuActive('/money')" :open="isMenuOpen('/money')">
         <template slot="link-text">财务管理</template>
@@ -83,13 +87,22 @@
         <template slot="link-text">用户分析</template>
         <sidenav-router-link  to="/burying/nikkatsu" :exact="true">活跃用户</sidenav-router-link>
         <sidenav-router-link  to="/burying/staytime" :exact="true">群发短信</sidenav-router-link>
-        <sidenav-router-link  to="/burying/average" :exact="true">用户分析</sidenav-router-link>
+        <sidenav-router-link  to="/burying/average" :exact="true">埋点统计</sidenav-router-link>
       </sidenav-menu>
       <sidenav-menu icon="ion ion-ios-rocket" :active="isMenuActive('/classification')" :open="isMenuOpen('/classification')">
-        <template slot="link-text">分类界面</template>
+        <template slot="link-text">动态分类界面</template>
         <sidenav-router-link  to="/classification/classifiedcontent" :exact="true">分类管理</sidenav-router-link>
-        <sidenav-router-link  to="/classification/officialupload" :exact="true">音频分类管理</sidenav-router-link>
+        <!-- <sidenav-router-link  to="/classification/officialupload" :exact="true">音频分类管理</sidenav-router-link> -->
         <sidenav-router-link  to="/classification/homerecommendation" :exact="true">首页推荐管理</sidenav-router-link>
+        <sidenav-router-link  to="/classification/secondsort" :exact="true">二级分类排序</sidenav-router-link>
+        <sidenav-router-link  to="/classification/recommendedtoday" :exact="true">今日推荐</sidenav-router-link>
+      </sidenav-menu>
+      <sidenav-menu icon="ion ion-ios-pizza" :active="isMenuActive('/workclassify')" :open="isMenuOpen('/workclassify')">
+        <template slot="link-text">作品分类管理</template>
+        <sidenav-router-link  to="/workclassify/workcontent" :exact="true">作品,背景音分类</sidenav-router-link>
+        <!-- <sidenav-router-link  to="/workclassify/workshow" :exact="true">作品分类展示</sidenav-router-link> -->
+        <sidenav-router-link  to="/workclassify/bgmusicshow" :exact="true">背景音分类展示</sidenav-router-link>
+        <sidenav-router-link  to="/workclassify/like" :exact="true">猜你喜欢</sidenav-router-link>
       </sidenav-menu>
     </div>
   </sidenav>

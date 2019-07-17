@@ -7,7 +7,10 @@
       </el-table-column>
       <el-table-column prop="typeName" label="分类名称" align="center">
       </el-table-column>
-      <el-table-column prop="title" label="标题" align="center">
+      <el-table-column label="分类" align="center">
+        <template slot-scope="prop">  
+          {{ prop.row.type == 1 ? '官方' : (prop.row.type == 2 ? '秀音': (prop.row.type == 3 ? '推荐' : (prop.row.type == 4 ?'人声' : '无')) ) }}
+        </template>
       </el-table-column>
       <el-table-column label="图片" align="center">
         <template slot-scope="props">
@@ -16,7 +19,7 @@
       </el-table-column>
       <el-table-column label="操作" align="center">
         <template slot-scope="props">
-          <!-- <el-button type="primary" size="mini"  @click="updata(props)">修改</el-button> -->
+          <el-button type="primary" size="mini"  @click="updata(props)">修改</el-button>
           <el-button type="danger" size="mini" @click="del(props)">删除</el-button>
         </template>
       </el-table-column>
@@ -35,11 +38,11 @@
     </el-dialog>
     <!-- 增加内容的分类 -->
     <el-dialog title="提示" :visible.sync="centerDialogVisibleImg" width="30%" center>
-      <el-select v-model="value" placeholder="请选择" @change="handleChange">
+      <el-select v-model="value" placeholder="请选择分类名称" @change="handleChange">
         <el-option v-for="item in options" :key="item.id" :label="item.typeName" :value="item.typeName">
         </el-option>
       </el-select>
-      <el-input v-model="title" placeholder="请输入标题"></el-input>
+      <el-input v-model="title" placeholder="请输入简介"></el-input>
       <div class="add_head" @click="selectIcon(0)">
         <img :src="$oss.url + editorImg" alt width="100%" height="180">
         <i class="el-icon-plus avatar-uploader-icon" v-show="plusShow"></i>
@@ -48,6 +51,19 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="centerDialogVisibleImg = false">取 消</el-button>
         <el-button type="primary" @click="dermineImg">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 修改 -->
+    <el-dialog title="提示" :visible.sync="centerDialogVisibleEditImg" width="30%" center>
+      <el-input v-model="value1" placeholder="修改的标题"></el-input>
+      <div class="add_head" @click="selectIcon(0)">
+        <img :src="$oss.url + editorImg1" alt width="100%" height="180">
+        <i class="el-icon-plus avatar-uploader-icon" v-show="plusShow"></i>
+      </div>
+      <input accept="image/jpeg, image/png" ref="iconFile" @change="iconFileChange1" type="file" name="icon" style="display: none">
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="centerDialogVisibleEditImg = false">取 消</el-button>
+        <el-button type="primary" @click="dermineEditImg">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -63,10 +79,13 @@
         tableData: [],
         centerDialogVisible: false,
         centerDialogVisibleImg: false,
+        centerDialogVisibleEditImg: false,
         editorImg: '',
+        editorImg1: '',
         typeName: '',
         typeId: '',
         value: '',
+        value1: '',
         title: '',
         options: [],
         typeOptions: [{
@@ -82,7 +101,8 @@
           value: '4',
           label: '人声'
         }],
-        typeValue: ''
+        typeValue: '',
+        indexInfoId: ''
       }
     },
     created() {
@@ -114,7 +134,11 @@
         })
       },
       updata(props) {
-
+        console.log(props)
+        this.centerDialogVisibleEditImg = true
+        this.indexInfoId = props.row.id
+        this.value1 = props.row.typeName
+        this.editorImg1 = props.row.picture
       },
       //删除分类
       del(props) {
@@ -144,15 +168,17 @@
       },
       dermine() {
         this.centerDialogVisible = false
-        this.$api.ClassificationManagement.IncreaseClassification(data => {
-          this.typeName = ''
-          this.typeValue = ''
-        }, {
-          typeName: this.typeName,
-          level: -1,
-          highLevelId: -1,
-          type: this.typeValue
-        })
+        if(this.typeName.length <= 6) {
+          this.$api.ClassificationManagement.IncreaseClassification(data => {
+            this.typeName = ''
+            this.typeValue = ''
+          }, {
+            typeName: this.typeName,
+            level: -1,
+            highLevelId: -1,
+            type: this.typeValue
+          })
+        }
       },
       addIndexPic() {
         this.centerDialogVisibleImg = true
@@ -164,17 +190,23 @@
       },
       dermineImg() {
         this.centerDialogVisibleImg = false
-        this.$api.ClassificationManagement.AddPicture(data => {
-          this.getData()
-          this.editorImg = ''
-          this.title = ''
-          this.value = ''
-        }, {
-          picture: this.editorImg,
-          id: this.typeId,
-          title: this.title,
-          content: ''
-        })
+
+        if(this.value && this.editorImg) {
+            this.$api.ClassificationManagement.AddPicture(data => {
+              this.getData()
+              this.editorImg = ''
+              this.title = ''
+              this.value = ''
+            }, {
+              picture: this.editorImg,
+              id: this.typeId,
+              title: this.title,
+              content: ''
+            })
+        } else {
+         this.$message.error('请填写相关信息');
+        }
+        
       },
       handleChange() {
         const typeId = this.options.filter(item => {
@@ -191,37 +223,160 @@
         this.$refs.iconFile.click();
         this.$refs.iconFile.value = null;
       },
+      dermineEditImg() {
+        this.centerDialogVisibleEditImg = false
+        this.$api.ClassificationManagement.updateTypeAndPicture(data => {
+          this.getData()
+          this.$message({
+            message: '修改成功',
+            type: 'success'
+          })
+        }, {
+          id: this.indexInfoId,
+          typeName: this.value1,
+          picture: this.editorImg1
+        })
+      },
       iconFileChange(e) {
         let file = e.target.files[0];
-        let reader = new FileReader();
-        reader.onload = e => {
-          let data = e.target.result;
-          this.$api.oss.update(data => {
-            new OSS.Wrapper({
-                region: "oss-cn-hangzhou",
-                accessKeyId: data.accessKeyId,
-                accessKeySecret: data.accessKeySecret,
-                stsToken: data.securityToken,
-                bucket: 'sounds-miyu'
-                // bucket: 'zhiyuan-hz'
-              })
-              .put(data.random, file)
-              .then(data => {
-                this.editorImg = data.name; //头像上传
-                this.plusShow = false;
-              })
-              .catch(function (err) {
-                console.error("error: %j", err);
-              });
-          }, {});
-          // };
-          // image.src = data;
-        };
-        reader.readAsDataURL(file);
+
+        // var reg = /image/
+        // var str = file.type
+        // var s = reg.test(str)
+        // if(s) {
+        //   var fileLimit = file.size / 1024 < 500
+        //   if(!fileLimit) {
+        //     this.$message.error('上传图片大小不能超过 500KB!')
+        //   }
+        // }
+        var fileLimit = file.size / 1024 < 500
+        if(!fileLimit) {
+            this.$message.error('上传图片大小不能超过 500KB!')
+        } else {
+            let reader = new FileReader();
+            reader.onload = e => {
+              let data = e.target.result;
+              this.$api.oss.update(data => {
+                new OSS.Wrapper({
+                    region: "oss-cn-hangzhou",
+                    accessKeyId: data.accessKeyId,
+                    accessKeySecret: data.accessKeySecret,
+                    stsToken: data.securityToken,
+                    bucket: 'sounds-miyu'
+                    // bucket: 'zhiyuan-hz'
+                  })
+                  .put(data.random, file)
+                  .then(data => {
+                    this.editorImg = data.name; //头像上传
+                    this.plusShow = false;
+                  })
+                  .catch(function (err) {
+                    console.error("error: %j", err);
+                  });
+              }, {});
+              // };
+              // image.src = data;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // let reader = new FileReader();
+        // reader.onload = e => {
+        //   let data = e.target.result;
+        //   this.$api.oss.update(data => {
+        //     new OSS.Wrapper({
+        //         region: "oss-cn-hangzhou",
+        //         accessKeyId: data.accessKeyId,
+        //         accessKeySecret: data.accessKeySecret,
+        //         stsToken: data.securityToken,
+        //         bucket: 'sounds-miyu'
+        //         // bucket: 'zhiyuan-hz'
+        //       })
+        //       .put(data.random, file)
+        //       .then(data => {
+        //         this.editorImg = data.name; //头像上传
+        //         this.plusShow = false;
+        //       })
+        //       .catch(function (err) {
+        //         console.error("error: %j", err);
+        //       });
+        //   }, {});
+        //   // };
+        //   // image.src = data;
+        // };
+        // reader.readAsDataURL(file);
+      },
+      iconFileChange1(e) {
+        let file = e.target.files[0];
+
+        // var reg = /image/
+        // var str = file.type
+        // var s = reg.test(str)
+        // if(s) {
+        //   var fileLimit = file.size / 1024 < 500
+        //   if(!fileLimit) {
+        //     this.$message.error('上传图片大小不能超过 500KB!')
+        //   }
+        // }
+        var fileLimit = file.size / 1024 < 500
+        if(!fileLimit) {
+            this.$message.error('上传图片大小不能超过 500KB!')
+        } else {
+            let reader = new FileReader();
+            reader.onload = e => {
+              let data = e.target.result;
+              this.$api.oss.update(data => {
+                new OSS.Wrapper({
+                    region: "oss-cn-hangzhou",
+                    accessKeyId: data.accessKeyId,
+                    accessKeySecret: data.accessKeySecret,
+                    stsToken: data.securityToken,
+                    bucket: 'sounds-miyu'
+                    // bucket: 'zhiyuan-hz'
+                  })
+                  .put(data.random, file)
+                  .then(data => {
+                    this.editorImg1 = data.name; //头像上传
+                    this.plusShow = false;
+                  })
+                  .catch(function (err) {
+                    console.error("error: %j", err);
+                  });
+              }, {});
+              // };
+              // image.src = data;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // let reader = new FileReader();
+        // reader.onload = e => {
+        //   let data = e.target.result;
+        //   this.$api.oss.update(data => {
+        //     new OSS.Wrapper({
+        //         region: "oss-cn-hangzhou",
+        //         accessKeyId: data.accessKeyId,
+        //         accessKeySecret: data.accessKeySecret,
+        //         stsToken: data.securityToken,
+        //         bucket: 'sounds-miyu'
+        //         // bucket: 'zhiyuan-hz'
+        //       })
+        //       .put(data.random, file)
+        //       .then(data => {
+        //         this.editorImg = data.name; //头像上传
+        //         this.plusShow = false;
+        //       })
+        //       .catch(function (err) {
+        //         console.error("error: %j", err);
+        //       });
+        //   }, {});
+        //   // };
+        //   // image.src = data;
+        // };
+        // reader.readAsDataURL(file);
       },
     }
   }
-
 </script>
 
 <style lang="scss" scoped>
@@ -232,7 +387,6 @@
     margin-top: 10px;
     position: relative;
     cursor: pointer;
-
     i {
       position: absolute;
       left: 50%;
@@ -242,9 +396,7 @@
       font-size: 25px;
     }
   }
-
   .el-input {
     margin: 5px 0;
   }
-
 </style>

@@ -65,6 +65,13 @@
       <!-- 图片的展示列表 -->
       <div class="box-pic">
         <el-button type="primary" @click="uploadMark">上传</el-button>
+        
+        <div class="searchInput">
+          <el-input v-model="SortIdValue" placeholder="排序"></el-input>
+          <el-input v-model="BeSortIdValue" placeholder="被排序"></el-input>
+          <el-button type="primary" @click="sortList">排序</el-button>
+        </div>
+
         <el-table ref="tab" :data="pictureList" row-key="id" border style="width: 100%">
           <el-table-column prop="id" label="id" align="center">
           </el-table-column>
@@ -77,10 +84,15 @@
               <img :src="$oss.url + props.row.picture" alt="" width="80" height="40">
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center">
+          <el-table-column label="音频" align="center" width="400">
             <template slot-scope="props">
-              <!-- <el-button type="primary" size="mini" @click="modify(props)">修改</el-button> -->
-              <el-button type="danger" size="mini" @click="delItem(props.row.id)">删除</el-button>
+              <audio :src="$oss.url + props.row.voice" controls v-if=" props.row.voice "></audio>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" align="center" >
+            <template slot-scope="props">
+              <el-button type="primary" size="mini" @click="modify(props)" v-if=" !props.row.voice ">修改</el-button>
+              <el-button type="danger" size="mini" @click="delItem(props.row.id)" v-if="props.row.voice">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -91,13 +103,19 @@
             <el-input v-model="title" placeholder="请输入标题"></el-input>
             <el-input v-model="introduction" placeholder="请输入内容简介"></el-input>
             <!-- 上传图片 -->
-            <img :src="$oss.url + editorImg" alt="" width="300" height="150">
-            <!-- <div class="add_head" @click="selectIcon(0)">
-              <img :src="$oss.url + editorImg" alt width="100%">
+            <!-- <img :src="$oss.url + editorImg" alt="" width="300" height="150"> -->
+            <div class="add_head" @click="selectIcon(0)">
+              <img :src="$oss.url + editorImg" alt >
               <i class="el-icon-plus avatar-uploader-icon" v-show="plusShow"></i>
             </div>
-            <input accept="image/jpeg, image/png" ref="iconFile" @change="iconFileChange" type="file" name="icon" style="display: none"> -->
-            <el-button type="primary" @click="uploadCropImg">上传图片</el-button>
+            <input accept="image/jpeg, image/png" ref="iconFile" @change="iconFileChange" type="file" name="icon" style="display: none">
+            <!-- <el-button type="primary" @click="uploadCropImg">上传图片</el-button> -->
+            <!-- 上传音频 -->
+            <div class="boxs">
+              <audio :src="$oss.url + addAudio" controls="controls" v-if="addAudio!==''" id="audio_duration"></audio>
+            </div>
+            <input accept="audio/*" ref="audioFile" @change="iconFileChange" type="file" name="icon" style="display: none">
+            <el-button type="primary" @click="selectIcon(1)">上传音频</el-button>
           </div>
           <span slot="footer" class="dialog-footer">
             <el-button @click="centerDialogVisibleImg = false">取 消</el-button>
@@ -124,12 +142,36 @@
             </div>
           </div>
           <span slot="footer" class="dialog-footer">
-            <el-button @click="centerDialogVisible = false">取 消</el-button>
+            <el-button @click="CropImage = false">取 消</el-button>
             <el-button type="primary" @click="DetermineCroppedImage">确 定</el-button>
           </span>
         </el-dialog>
 
       </div>
+      <!-- 修改分类的弹窗 -->
+      <el-dialog title="修改分类" :visible.sync="centerDialogVisibleEditImg" width="30%" center>
+        <div class="boxImg">
+          <el-input v-model="title1" placeholder="请输入标题"></el-input>
+          <el-input v-model="introduction1" placeholder="请输入内容简介"></el-input>
+          <div class="add_head" @click="selectIcon(0)">
+            <img :src="$oss.url + editorImg1" alt>
+            <i class="el-icon-plus avatar-uploader-icon" v-show="plusShow"></i>
+          </div>
+          <input accept="image/jpeg, image/png" ref="iconFile" @change="iconFileChange1" type="file" name="icon" style="display: none">
+          <!-- <div class="boxs">
+            <audio :src="$oss.url + addAudio" controls="controls" v-if="addAudio!==''" id="audio_duration"></audio>
+          </div>
+          <input accept="audio/*" ref="audioFile" @change="iconFileChange" type="file" name="icon" style="display: none">
+          <el-button type="primary" @click="selectIcon(1)">上传音频</el-button> -->
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="centerDialogVisibleEditImg = false">取 消</el-button>
+          <el-button type="primary" @click="EditImage">确 定</el-button>
+        </span>
+      </el-dialog>
+
+
+
     </div>
   </div>
 </template>
@@ -153,8 +195,11 @@
         SecondaryClassification: [], //二级分类内容
         firstnum: 0,    //选中一级分类的下标
         secondnum: null,  //选中的二级分类的下标
-        plusShow: true,
+        plusShow: true,   //图片的显示
         editorImg: '', //头像地址
+        title1: '', //修改标题
+        introduction1: '', //修改简介
+        editorImg1: '',   //修改图片地址
         title: '', //标题
         introduction: '', //简介
         pictureList: [], //图片的列表
@@ -162,12 +207,20 @@
         addAudio: '', //音频地址
         changeFirstTypeName: '', //修改一级分类的内容
         changeSecondTypeName: '', //修改二级分类的内容
+        pictureId: '',   //图片的id
+        audioTime: '',   //音频时长
+        centerDialogVisibleEditImg: false,
+        BeSortIdValue: '',
+        SortIdValue: '',
+
+
 
         //裁剪图片的变量
         model: false,
         modelSrc: '',
         crap: false,
         previews: {},
+        updateImgId: '',
         form: {
           head: ''
         },
@@ -199,28 +252,28 @@
       this.GetSecondClassification(1)
     },
     mounted() {
-      const el = this.$refs.tab.$el.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]
-      new Sortable(el, {
-        animation: 150,
-        onEnd: evt => {
-          this.$api.ClassificationManagement.ChangeImageOrder(data => {
-            var firstId = this.PrimaryClassification[this.firstnum].id
-            if (this.SecondaryClassification.length) {
-              var secondId = this.SecondaryClassification[this.secondnum].id
-            }
-            if (secondId && firstId) {
-              this.getPicture(secondId)
-            } else {
-              this.getPicture(firstId)
-            }
-          }, {
-            beSort: this.pictureList[evt.oldIndex].sort,
-            beSortId: this.pictureList[evt.oldIndex].id,
-            sort: this.pictureList[evt.newIndex].sort,
-            sortId: this.pictureList[evt.newIndex].id
-          })
-        }
-      })
+      // const el = this.$refs.tab.$el.querySelectorAll('.el-table__body-wrapper > table > tbody')[0]
+      // new Sortable(el, {
+      //   animation: 150,
+      //   onEnd: evt => {
+      //     this.$api.ClassificationManagement.ChangeImageOrder(data => {
+      //       var firstId = this.PrimaryClassification[this.firstnum].id
+      //       if (this.SecondaryClassification.length) {
+      //         var secondId = this.SecondaryClassification[this.secondnum].id
+      //       }
+      //       if (secondId && firstId) {
+      //         this.getPicture(secondId)
+      //       } else {
+      //         this.getPicture(firstId)
+      //       }
+      //     }, {
+      //       beSort: this.pictureList[evt.oldIndex].sort,
+      //       beSortId: this.pictureList[evt.oldIndex].id,
+      //       sort: this.pictureList[evt.newIndex].sort,
+      //       sortId: this.pictureList[evt.newIndex].id
+      //     })
+      //   }
+      // })
     },
     methods: {
       //增加分类
@@ -248,6 +301,7 @@
             const delElementId = this.PrimaryClassification[this.firstnum].id
             this.$api.ClassificationManagement.DeleteCategory(data => {
               this.GetClassification()
+              this.GetSecondClassification(delElementId)
               this.$message({
                 message: '删除成功',
                 type: 'success'
@@ -358,6 +412,356 @@
           })
         }
       },
+      selectIcon(type) {
+        //type 0为图片 1为音频
+        if (type == 0) {
+          this.type = 0
+          this.$refs.iconFile.click();
+          this.$refs.iconFile.value = null;
+        } else if (type == 1) {
+          this.type = 1
+          this.$refs.audioFile.click();
+          this.$refs.audioFile.value = null;
+          
+        }
+      },
+      iconFileChange(e) {
+        let file = e.target.files[0];
+        if (!file.name.substring(file.name.lastIndexOf(".")) == ".png") {
+          return;
+        }
+
+        var url = URL.createObjectURL(file)
+        var audioElement = new Audio(url);
+        var duration;
+        var that = this
+        audioElement.addEventListener("loadedmetadata", function (_event) {
+          duration = audioElement.duration;
+          that.audioTime = Math.floor(duration)
+        });
+
+
+        var reg = /image/
+        var str = file.type
+        var s = reg.test(str)
+
+        if(s) {
+          var fileLimit = file.size / 1024 < 500
+          if(!fileLimit) {
+            this.$message.error('上传图片大小不能超过 500KB!')
+          } else {
+            let reader = new FileReader();
+            reader.onload = e => {
+              let data = e.target.result;
+              this.$api.oss.update(data => {
+                new OSS.Wrapper({
+                    region: "oss-cn-hangzhou",
+                    accessKeyId: data.accessKeyId,
+                    accessKeySecret: data.accessKeySecret,
+                    stsToken: data.securityToken,
+                    bucket: 'sounds-miyu'
+                    // bucket: 'zhiyuan-hz'
+                  })
+                  .put(data.random, file)
+                  .then(data => {
+                    if (this.type == 0) {
+                      this.editorImg = data.name
+                      this.plusShow = false
+                      var firstId = this.PrimaryClassification[this.firstnum].id
+                      if (this.SecondaryClassification.length) {
+                        var secondId = this.SecondaryClassification[this.secondnum].id
+                      }
+                      if (secondId && firstId) {
+                        this.$api.ClassificationManagement.AddPicture(data => {
+                          this.GetSecondClassification(firstId)
+                          this.getPicture(secondId)
+                          this.$api.ClassificationManagement.getPictureIdByPicture(data => {
+                            this.pictureId = data
+                          }, {
+                            picture: this.editorImg
+                          })
+                        }, {
+                          picture: this.editorImg,
+                          id: secondId,
+                          title: this.title,
+                          content: this.introduction
+                        })
+                      } else {
+                        this.$api.ClassificationManagement.AddPicture(data => {
+                          this.GetSecondClassification(firstId)
+                          this.getPicture(firstId)
+                          this.$message({
+                            message: '添加成功',
+                            type: 'success'
+                          })
+                          // this.title = ''
+                          // this.introduction = ''
+                          // this.editorImg = ''
+                        }, {
+                          picture: this.editorImg,
+                          id: firstId,
+                          title: this.title,
+                          content: this.introduction
+                        })
+                      }
+                    } 
+                    // if (this.type == 1) {
+                    //   this.addAudio = data.name
+                    //   var firstId = this.PrimaryClassification[this.firstnum].id
+                    //   if (this.SecondaryClassification.length) {
+                    //     var secondId = this.SecondaryClassification[this.secondnum].id
+                    //   }
+                    //   if(secondId && firstId) {
+                    //       this.$api.ClassificationManagement.InsertOfficialAudio(data => {
+                    //       this.getPicture(secondId)
+                    //       }, {
+                    //         voice: this.addAudio,
+                    //         picture: this.editorImg,
+                    //         pictureId: this.pictureId,
+                    //         second: this.audioTime
+                    //       })
+                    //   } else {
+                    //     this.$api.ClassificationManagement.InsertOfficialAudio(data => {
+                    //       this.getPicture(firstId)
+                    //     }, {
+                    //       voice: this.addAudio,
+                    //       picture: this.editorImg,
+                    //       pictureId: this.pictureId,
+                    //       second: this.audioTime
+                    //     })
+                    //   }
+                    // }
+                  })
+                  .catch(function (err) {
+                    console.error("error: %j", err);
+                  });
+              }, {});
+              // };
+              // image.src = data;
+            };
+            reader.readAsDataURL(file);
+          }
+        } else {
+          let reader = new FileReader();
+          reader.onload = e => {
+            let data = e.target.result;
+            this.$api.oss.update(data => {
+              new OSS.Wrapper({
+                  region: "oss-cn-hangzhou",
+                  accessKeyId: data.accessKeyId,
+                  accessKeySecret: data.accessKeySecret,
+                  stsToken: data.securityToken,
+                  bucket: 'sounds-miyu'
+                  // bucket: 'zhiyuan-hz'
+                })
+                .put(data.random, file)
+                .then(data => {
+                  // if (this.type == 0) {
+                  //   this.editorImg = data.name
+                  //   this.plusShow = false
+                  //   var firstId = this.PrimaryClassification[this.firstnum].id
+                  //   if (this.SecondaryClassification.length) {
+                  //     var secondId = this.SecondaryClassification[this.secondnum].id
+                  //   }
+                  //   if (secondId && firstId) {
+                  //     this.$api.ClassificationManagement.AddPicture(data => {
+                  //       this.GetSecondClassification(firstId)
+                  //       this.getPicture(secondId)
+                  //       this.$api.ClassificationManagement.getPictureIdByPicture(data => {
+                  //         this.pictureId = data
+                  //       }, {
+                  //         picture: this.editorImg
+                  //       })
+                  //     }, {
+                  //       picture: this.editorImg,
+                  //       id: secondId,
+                  //       title: this.title,
+                  //       content: this.introduction
+                  //     })
+                  //   } else {
+                  //     this.$api.ClassificationManagement.AddPicture(data => {
+                  //       this.GetSecondClassification(firstId)
+                  //       this.getPicture(firstId)
+                  //       this.$message({
+                  //         message: '添加成功',
+                  //         type: 'success'
+                  //       })
+                  //       // this.title = ''
+                  //       // this.introduction = ''
+                  //       // this.editorImg = ''
+                  //     }, {
+                  //       picture: this.editorImg,
+                  //       id: firstId,
+                  //       title: this.title,
+                  //       content: this.introduction
+                  //     })
+                  //   }
+                  // } 
+                  if (this.type == 1) {
+                    this.addAudio = data.name
+                    var firstId = this.PrimaryClassification[this.firstnum].id
+                    if (this.SecondaryClassification.length) {
+                      var secondId = this.SecondaryClassification[this.secondnum].id
+                    }
+                    if(secondId && firstId) {
+                        this.$api.ClassificationManagement.InsertOfficialAudio(data => {
+                        this.getPicture(secondId)
+                        }, {
+                          voice: this.addAudio,
+                          picture: this.editorImg,
+                          pictureId: this.pictureId,
+                          second: this.audioTime
+                        })
+                    } else {
+                      this.$api.ClassificationManagement.InsertOfficialAudio(data => {
+                        this.getPicture(firstId)
+                      }, {
+                        voice: this.addAudio,
+                        picture: this.editorImg,
+                        pictureId: this.pictureId,
+                        second: this.audioTime
+                      })
+                    }
+                  }
+                })
+                .catch(function (err) {
+                  console.error("error: %j", err);
+                });
+            }, {});
+            // };
+            // image.src = data;
+          };
+          reader.readAsDataURL(file);
+        }
+
+
+        
+
+        // let reader = new FileReader();
+        // reader.onload = e => {
+        //   let data = e.target.result;
+        //   this.$api.oss.update(data => {
+        //     new OSS.Wrapper({
+        //         region: "oss-cn-hangzhou",
+        //         accessKeyId: data.accessKeyId,
+        //         accessKeySecret: data.accessKeySecret,
+        //         stsToken: data.securityToken,
+        //         bucket: 'sounds-miyu'
+        //         // bucket: 'zhiyuan-hz'
+        //       })
+        //       .put(data.random, file)
+        //       .then(data => {
+        //         if (this.type == 0) {
+        //           this.editorImg = data.name
+        //           this.plusShow = false
+        //           var firstId = this.PrimaryClassification[this.firstnum].id
+        //           if (this.SecondaryClassification.length) {
+        //             var secondId = this.SecondaryClassification[this.secondnum].id
+        //           }
+        //           if (secondId && firstId) {
+        //             this.$api.ClassificationManagement.AddPicture(data => {
+        //               this.GetSecondClassification(firstId)
+        //               this.getPicture(secondId)
+        //               this.$api.ClassificationManagement.getPictureIdByPicture(data => {
+        //                 this.pictureId = data
+        //               }, {
+        //                 picture: this.editorImg
+        //               })
+        //             }, {
+        //               picture: this.editorImg,
+        //               id: secondId,
+        //               title: this.title,
+        //               content: this.introduction
+        //             })
+        //           } else {
+        //             this.$api.ClassificationManagement.AddPicture(data => {
+        //               this.GetSecondClassification(firstId)
+        //               this.getPicture(firstId)
+        //               this.$message({
+        //                 message: '添加成功',
+        //                 type: 'success'
+        //               })
+        //               // this.title = ''
+        //               // this.introduction = ''
+        //               // this.editorImg = ''
+        //             }, {
+        //               picture: this.editorImg,
+        //               id: firstId,
+        //               title: this.title,
+        //               content: this.introduction
+        //             })
+        //           }
+        //         } 
+        //         if (this.type == 1) {
+        //           this.addAudio = data.name
+        //           var firstId = this.PrimaryClassification[this.firstnum].id
+        //           if (this.SecondaryClassification.length) {
+        //             var secondId = this.SecondaryClassification[this.secondnum].id
+        //           }
+        //           if(secondId && firstId) {
+        //               this.$api.ClassificationManagement.InsertOfficialAudio(data => {
+        //                this.getPicture(secondId)
+        //               }, {
+        //                 voice: this.addAudio,
+        //                 picture: this.editorImg,
+        //                 pictureId: this.pictureId,
+        //                 second: this.audioTime
+        //               })
+        //           } else {
+        //             this.$api.ClassificationManagement.InsertOfficialAudio(data => {
+        //               this.getPicture(firstId)
+        //             }, {
+        //               voice: this.addAudio,
+        //               picture: this.editorImg,
+        //               pictureId: this.pictureId,
+        //               second: this.audioTime
+        //             })
+        //           }
+        //         }
+        //       })
+        //       .catch(function (err) {
+        //         console.error("error: %j", err);
+        //       });
+        //   }, {});
+        //   // };
+        //   // image.src = data;
+        // };
+        // reader.readAsDataURL(file);
+      },
+      iconFileChange1(e) {
+        let file = e.target.files[0];
+        if (!file.name.substring(file.name.lastIndexOf(".")) == ".png") {
+          return;
+        }
+
+        let reader = new FileReader();
+        reader.onload = e => {
+          let data = e.target.result;
+          this.$api.oss.update(data => {
+            new OSS.Wrapper({
+                region: "oss-cn-hangzhou",
+                accessKeyId: data.accessKeyId,
+                accessKeySecret: data.accessKeySecret,
+                stsToken: data.securityToken,
+                bucket: 'sounds-miyu'
+                // bucket: 'zhiyuan-hz'
+              })
+              .put(data.random, file)
+              .then(data => {
+                if (this.type == 0) {
+                    this.editorImg1 = data.name
+                    this.plusShow = false
+                } 
+              })
+              .catch(function (err) {
+                console.error("error: %j", err);
+              });
+          }, {});
+          // };
+          // image.src = data;
+        };
+        reader.readAsDataURL(file);
+      },
       //点击一级分类
       firstContent(index) {
         this.firstnum = index
@@ -406,43 +810,57 @@
           var secondId = this.SecondaryClassification[this.secondnum].id
         }
         if (secondId && firstId) {
-          this.$api.ClassificationManagement.AddPicture(data => {
-            this.GetSecondClassification(firstId)
-            this.getPicture(secondId)
-            this.$message({
+          this.$message({
               message: '添加成功',
               type: 'success'
             })
             this.title = ''
             this.introduction = ''
             this.editorImg = ''
-          }, {
-            picture: this.editorImg,
-            id: secondId,
-            title: this.title,
-            content: this.introduction
-          })
+            this.addAudio = ''
         } else {
-          this.$api.ClassificationManagement.AddPicture(data => {
-            this.GetSecondClassification(firstId)
-            this.getPicture(firstId)
-            this.$message({
+          this.$message({
               message: '添加成功',
               type: 'success'
             })
             this.title = ''
             this.introduction = ''
             this.editorImg = ''
-          }, {
-            picture: this.editorImg,
-            id: firstId,
-            title: this.title,
-            content: this.introduction
-          })
+            this.addAudio = ''
         }
       },
       modify(item) {
-
+        this.centerDialogVisibleEditImg = true
+        this.title1 = item.row.title
+        this.introduction1 = item.row.content
+        this.editorImg1 = item.row.picture
+        this.updateImgId = item.row.id
+      },
+      EditImage() {
+        this.centerDialogVisibleEditImg = false
+        this.$api.ClassificationManagement.editImg(data => {
+          var firstId = this.PrimaryClassification[this.firstnum].id
+          if (this.SecondaryClassification.length) {
+            var secondId = this.SecondaryClassification[this.secondnum].id
+          }
+          if (secondId && firstId) {
+              this.getPicture(secondId)
+          } else {
+            this.getPicture(firstId)
+          }
+          this.title1 = ''
+          this.introduction1 = ''
+          this.editorImg1 = ''
+          this.$message({
+            message: '修改成功',
+            type: 'success'
+          })
+        }, {
+          id: this.updateImgId,
+          picture: this.editorImg1,
+          title: this.title1,
+          content: this.introduction1
+        })
       },
       //删除图片
       delItem(id) {
@@ -561,6 +979,39 @@
         // 转化为blobcs
         reader.readAsArrayBuffer(file)
       },
+      //图片排序
+      sortList () {
+        if(this.SortIdValue && this.BeSortIdValue) {
+          var sortItem = this.pictureList.filter(item => {
+              if(this.SortIdValue == item.id) {
+                return item
+              }
+          })
+          var beSortItem = this.pictureList.filter(item => {
+              if(this.BeSortIdValue == item.id) {
+                return item
+              }
+          })
+          this.$api.ClassificationManagement.ChangeImageOrder(data => {
+            var firstId = this.PrimaryClassification[this.firstnum].id
+            if (this.SecondaryClassification.length) {
+              var secondId = this.SecondaryClassification[this.secondnum].id
+            }
+            if (secondId && firstId) {
+              this.getPicture(secondId)
+            } else {
+              this.getPicture(firstId)
+            }
+            this.SortIdValue = ''
+            this.BeSortIdValue = ''
+          }, {
+            beSort: beSortItem[0].sort,
+            beSortId: beSortItem[0].id,
+            sort: sortItem[0].sort,
+            sortId: sortItem[0].id
+          })
+        }  
+      }
     }
   }
 
@@ -686,7 +1137,10 @@
       border: 1px dashed #ccc;
       position: relative;
       cursor: pointer;
-
+        img {
+          width: 343px;
+          height: 171.5px;
+        }
       i {
         position: absolute;
         left: 50%;
@@ -752,5 +1206,43 @@
       }
     }
   }
+  .add_head {
+      width: 343px;
+      height: 171.5px;
+      border: 1px dashed #ccc;
+      position: relative;
+      cursor: pointer;
+        img {
+          width: 343px;
+          height: 171.5px;
+        }
+      i {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -12.5px;
+        margin-top: -12.5px;
+        font-size: 25px;
+      }
+    }
 
+    .boxImg {
+      width: 400px;
+
+      .el-input {
+        margin: 5px 0;
+      }
+    }
+
+    .boxs {
+      width: 300px;
+      margin: 10px 0;
+      min-height: 100px;
+      border: 1px solid #999;
+    }
+    .searchInput {
+      float: right;
+      display: flex;
+      align-items: center;
+    }
 </style>

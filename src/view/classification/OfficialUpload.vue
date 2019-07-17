@@ -40,8 +40,7 @@
       </el-table-column>
     </el-table>
     <div class="block">
-      <el-pagination background @current-change="handleCurrentChange" :current-page.sync="currentPage" :page-size="10"
-        layout="total, prev, pager, next" :total="total">
+      <el-pagination background @current-change="handleCurrentChange" :current-page.sync="currentPage" :page-size="10" layout="total, prev, pager, next" :total="total">
       </el-pagination>
     </div>
     <!-- 上传音频 -->
@@ -55,7 +54,7 @@
       <input accept="audio/*" ref="audioFile" @change="iconFileChange" type="file" name="icon" style="display: none">
       <el-button type="primary" @click="selectIcon(1)">上传音频</el-button>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="centerDialogVisible = false">取 消</el-button>
+        <el-button @click="centerDialogVisibleAudio = false">取 消</el-button>
         <el-button type="primary" @click="centerAudio">确 定</el-button>
       </span>
     </el-dialog>
@@ -77,7 +76,7 @@
         </li>
       </ul>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="centerDialogVisible = false">取 消</el-button>
+        <el-button @click="centerDialogVisibleImg = false">取 消</el-button>
         <el-button type="primary" @click="centerImg">确 定</el-button>
       </span>
     </el-dialog>
@@ -86,6 +85,8 @@
 
 <script>
   import * as OSS from "ali-oss";
+// import { setInterval } from 'timers';
+// import { clearLine } from 'readline';
   export default {
     data() {
       return {
@@ -104,7 +105,8 @@
         pictureId: '',
         pictureAddress: '',
         total: 0,
-        audioTime: null //音频时长
+        audioTime: null, //音频时长
+        timer: null
       }
     },
     created() {
@@ -286,6 +288,19 @@
           }
         }
         await this.$set(this.tableData[index], 'isShow', false)
+        // //设置定时器
+        // var s = this.tableData[index].second
+        // if(this.timer == null) {
+        //   this.timer = setInterval(() => {
+        //     s--
+        //     this.tableData[index].second = s
+        //     if(s < 1) {
+        //       clearInterval(this.timer)
+        //       this.timer = null
+        //     }
+        //     console.log(s)
+        //   }, 1000)
+        // }
       },
       paused_click(index) {
         var audios = document.getElementsByTagName('audio')
@@ -347,6 +362,7 @@
  @theme_color: rgb(233, 116, 38);
   .box {
     width: 100px;
+    margin: 0 auto;
     overflow: hidden;
     background-color: rgba(233, 116, 38, .3);
     border-radius: 15px;

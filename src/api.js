@@ -3,7 +3,7 @@ import axios from 'axios'
 import CryptoJS from 'crypto-js'
 Vue.prototype.$ajax = axios;
 
-axios.defaults.baseURL = 'http://192.168.255.15:8085';
+axios.defaults.baseURL = 'http://192.168.255.17:8085';
 // axios.defaults.baseURL = 'http://admin.dev.yoursmiyu.com';
 
 
@@ -202,7 +202,42 @@ export const user = {
     };
     ajax(callback, request, error);
   },
-
+  //查询大V列表
+  selectUserLevelList: (callback, data, error) => {
+    let request = {
+      url: '/system/selectUserLevelList',
+      method: 'post',
+      data: data
+    };
+    ajax(callback, request, error);
+  },
+  //更换大V声音属性
+  updateUserLevelSoundType: (callback, data, error) => {
+    let request = {
+      url: '/system/updateUserLevelSoundType',
+      method: 'post',
+      data: data
+    };
+    ajax(callback, request, error);
+  },
+  //更换大V排序
+  updateUserLevelSort: (callback, data, error) => {
+    let request = {
+      url: '/system/updateUserLevelSort',
+      method: 'post',
+      data: data
+    };
+    ajax(callback, request, error);
+  },
+  //更改大V技能鉴定
+  updateUserLevelSkill: (callback, data, error) => {
+    let request = {
+      url: '/system/updateUserLevelSkill',
+      method: 'post',
+      data: data
+    };
+    ajax(callback, request, error);
+  },
 };
 /**
  * 标签管理
@@ -680,6 +715,69 @@ export const find = {
         };
         ajax(callback, request, error);
     },
+    //推荐文章分类
+    updateCheckTypeAndType: (callback, data, error) => {
+        let request = {
+            url: '/officialArticle/updateCheckTypeAndType',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //获取滚动内容
+    getRollBroadcast: (callback, data, error) => {
+        let request = {
+            url: '/system/getWhileActivity',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //增加滚动广播
+    addRollBroadcast: (callback, data, error) => {
+        let request = {
+            url: '/system/insertWhileActivity',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    // 删除滚动广播
+    delRollBroadcast: (callback, data, error) => {
+        let request = {
+            url: '/system/deleteWhileActivity',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //查询录音列表
+    selectRecordList: (callback, data, error) => {
+        let request = {
+            url: '/system/selectRecordList',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //录音审核
+    checkRecord: (callback, data, error) => {
+        let request = {
+            url: '/system/checkRecord',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //录音分类
+    updateRecordType: (callback, data, error) => {
+        let request = {
+            url: '/system/updateRecordType',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
 };
 /**
  * 系统设置
@@ -1146,9 +1244,36 @@ export const userAnalysis = {
         };
         ajax(callback, request, error);
     },
+    //注册埋点打印
+    selectBuriedPointRegisterPrint: (callback, data, error) => {
+        let request = {
+            url: '/buriedPoint/selectBuriedPointRegisterPrint',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //模块埋点打印
+    selectBuriedPointModulePrint: (callback, data, error) => {
+        let request = {
+            url: '/buriedPoint/selectBuriedPointModulePrint',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //添加轮播图
+    addBanner: (callback, data, error) => {
+        let request = {
+            url: '/buriedPoint/insertWhilePicture',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
 }
 
-//分类管理
+//动态分类管理
 export const ClassificationManagement = {
     //增加分类
     IncreaseClassification: (callback, data, error) => {
@@ -1285,7 +1410,138 @@ export const ClassificationManagement = {
         };
         ajax(callback, request, error);
     },
+    //获取图片id
+    getPictureIdByPicture:  (callback, data, error) => {
+        let request = {
+            url: '/label/getPictureIdByPicture',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //推荐人声显示类型
+    insertRecommendHuman:  (callback, data, error) => {
+        let request = {
+            url: '/label/insertRecommendHuman',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //修改首页分类的图片 标题  简介
+    editImg:  (callback, data, error) => {
+        let request = {
+            url: '/label/updatePicture',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //修改首页四张的标题和文字
+    updateTypeAndPicture: (callback, data, error) => {
+        let request = {
+            url: '/label/updateTypeAndPicture',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
 }
+
+//作品分类管理
+export const workClassify = {
+    //添加录音作品分类
+    insertProductionType: (callback, data, error) => {
+        let request = {
+            url: '/system/insertProductionType',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //删除录音作品分类
+    deleteProductionType: (callback, data, error) => {
+        let request = {
+            url: '/system/deleteProductionType',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    // 查询录音作品分类
+    selectProductionType: (callback, data, error) => {
+        let request = {
+            url: '/system/selectProductionType',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //更新猜你喜欢
+    updateRecordGuessLike: (callback, data, error) => {
+        let request = {
+            url: '/system/updateRecordGuessLike',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //上传官方录音作品
+    insertOfficialRecord: (callback, data, error) => {
+        let request = {
+            url: '/system/insertOfficialRecord',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //查询猜你喜欢
+    selectRecordGuessLike: (callback, data, error) => {
+        let request = {
+            url: '/system/selectRecordGuessLike',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //更换猜你喜欢列表排序
+    updateGuessLikeSort: (callback, data, error) => {
+        let request = {
+            url: '/system/updateGuessLikeSort',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //添加背景音乐
+    insertBackgroundMusic: (callback, data, error) => {
+        let request = {
+            url: '/system/insertBackgroundMusic',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //删除背景音乐
+    deleteBackgroundMusic: (callback, data, error) => {
+        let request = {
+            url: '/system/deleteBackgroundMusic',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //查询背景音乐列表
+    selectBackgroundMusic: (callback, data, error) => {
+        let request = {
+            url: '/system/selectBackgroundMusic',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+}
+
 
 
 function ajax(callback, request, error) {

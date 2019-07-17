@@ -31,6 +31,13 @@ export default [{
         title: '编辑动态'
       },
       component: resolve => require(['@/view/information/editorInformation'], resolve)
+    }, {
+      path: 'rollingBroadcast',
+      name: 'rollingBroadcast',
+      meta: {
+        title: '滚动广播'
+      },
+      component: resolve => require(['@/view/information/rollingBroadcast'], resolve)
     },
 ]
 }]

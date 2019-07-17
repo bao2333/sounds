@@ -75,14 +75,14 @@
         </el-table-column>
         <el-table-column prop="role" label="级别" align="center" >
           <template slot-scope="props">
-            {{ props.row.role == 0 ? '大V' : props.row.role == 1 ? '新秀' : '' }}
+            <!-- {{ props.row.role == 0 ? '大V' : props.row.role == 1 ? '新秀' : '' }} -->
+            <el-button type="primary" size="mini" @click="changeRole(props.row)">{{ props.row.role == 0 ? '大V' : props.row.role == 1 ? '新秀' : '' }}</el-button>
           </template>
         </el-table-column>
         <el-table-column prop="phone" label="手机号" align="center" ></el-table-column>
         <el-table-column prop="birthday" label="生日" align="center" ></el-table-column>
         <el-table-column prop="fansNum" label="粉丝数" align="center" ></el-table-column>
         <el-table-column prop="followNum" label="关注数" align="center" ></el-table-column>
-
         <el-table-column prop="balance" label="账户余额" align="center" ></el-table-column>
         <el-table-column prop="reportCount" label="举报数" align="center" ></el-table-column>
         <el-table-column prop="beReportAllCount" label="被举报数" align="center" ></el-table-column>
@@ -254,6 +254,34 @@
             .catch((error)=>{
               console.log(error)
             })
+        },
+        //改变用户级别
+        changeRole(row) {
+          console.log(row)
+          this.userRow = row.role == 0 ? '新秀' : '大V'
+          this.$confirm(`<p>确定要改变此用户级别为<span style="color:red;font-size: 16px"> ${this.userRow} </span>吗？</p>`, '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true,
+            type: 'success'
+          }).then(() => {
+            this.$api.user.editor_user_role(()=>{
+              this.selectRrcord();
+              this.$notify({
+                type:'success',
+                message:'修改级别成功',
+                title:'成功'
+              })
+            },{
+              userId:row.id,
+              role:row.role == 0 ? 1 : row.role == 1 ? 0 : null
+            })
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            });
+          });
         }
       }
     }

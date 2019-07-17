@@ -21,11 +21,11 @@
       </el-input>
       <el-input v-model="search.userPhone" placeholder="输入电话号码" size="mini" style="float:left;width:150px;margin: 0 10px;" clearable>
       </el-input>
-      <el-button type="primary" plain size="mini" style="float:left;margin-left:10px;" @click="showList()">查询
+      <!-- <el-button type="primary" plain size="mini" style="float:left;margin-left:10px;" @click="showList()">查询
+      </el-button> -->
+      <el-button type="primary" plain size="mini" style="float:left;margin-left:10px; margin-top: 0;" @click="checkClass()">查询分类
       </el-button>
-      <!-- <el-button type="primary" plain size="mini" style="float:left;margin-left:10px; margin-top: 0;" @click="checkClass()">查询分类
-      </el-button>
-      <el-button type="primary" plain size="mini" style="float:left;margin-left:10px; margin-top: 0;" @click="checkDefaultClass()">查询默认分类
+      <!-- <el-button type="primary" plain size="mini" style="float:left;margin-left:10px; margin-top: 0;" @click="checkDefaultClass()">查询默认分类
       </el-button> -->
       <el-button type="success" size="mini" style="float:right;margin:0px;" @click="batch()" v-if="flag">批量审核
       </el-button>
@@ -453,12 +453,15 @@
         this.imgurl = url
         this.deg = 0
       },
-      handleCurrentChange(val) {     
-        this.page = val;
-        this.showList();
+      handleCurrentChange(val) {
+        
+          this.page = val;
+          this.showList();
+          
       },
       // 列表展示，搜索
       async showList() {
+
         const page = this.page
         const pl_page = this.pl_page
         this.loading = true;
@@ -495,7 +498,7 @@
           coverType: this.search.type == '' ? null : parseInt(this.search.type),
           userName: this.search.userName == '' ? null : this.search.userName,
           userPhone: this.search.userPhone == '' ? null : this.search.userPhone,
-          typeId: this.search.classify == '' ? null : this.search.classify
+          typeId: this.search.classify == '' ? -1 : this.search.classify
         })
       },
       //审核通过
@@ -917,10 +920,46 @@
       //查询分类
       checkClassItem() {
         this.centerDialogVisibleClass = false
-        this.showList()
+        // this.showList()
+        window.localStorage.setItem('class', '222')
         const page = this.page
         const pl_page = this.pl_page
         this.loading = true;
+        this.$api.find.find_audit(data => {
+          this.loading = false;
+          this.tableData = data.result;
+          if (this.search.status == 0 || this.search.status == 1) {
+            this.tuijianShow = false;
+            this.noshenheShow = true;
+            this.tongguozhidingShow = false;
+            this.flag = false;
+          } else if (this.search.status == 2) {
+            this.noshenheShow = false;
+            this.tuijianShow = true;
+            this.tongguozhidingShow = true;
+            this.flag = true;
+          }
+          // 遍历给评论页赋值
+          let isShow = {'isShow' : true}
+          this.tableData.map(item => {
+            // item = Object.assign({} ,item , isShow)
+            // item.isShow = true
+            this.$set(item,'isShow',true)
+            if (this.id === item.id) {  //找到所选评论的数据
+              this.pinglunData = item.comments.commentData
+            }
+          })
+          this.total = data.pageInfo.total
+          this.size = data.pageInfo.pageSize
+          this.pages = data.pageInfo.pages
+        }, {
+          pageNum: page,
+          articleType: this.search.status == '' ? 0 : parseInt(this.search.status),
+          coverType: this.search.type == '' ? null : parseInt(this.search.type),
+          userName: this.search.userName == '' ? null : this.search.userName,
+          userPhone: this.search.userPhone == '' ? null : this.search.userPhone,
+          typeId: this.search.classify
+        })
         this.FiveValue = ''
         this.SixValue = ''
         // this.search.classify = ''
