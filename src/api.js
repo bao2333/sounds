@@ -526,6 +526,15 @@ export const find = {
         };
         ajax(callback, request, error);
     },
+    //获取热门标签
+    selectHotLabel: (callback, data, error) => {
+        let request = {
+            url: '/label/selectHotLabel',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
     //新增消息
     offical_add: (callback, data, error) => {
         let request = {
@@ -1535,6 +1544,42 @@ export const workClassify = {
     selectBackgroundMusic: (callback, data, error) => {
         let request = {
             url: '/system/selectBackgroundMusic',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //头像分类
+    updateAvatarByType: (callback, data, error) => {
+        let request = {
+            url: '/defaultAvatar/updateAvatarByType',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //新增头像
+    insertDefaultAvatar: (callback, data, error) => {
+        let request = {
+            url: '/defaultAvatar/insertDefaultAvatar',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //根据头像分类查询头像
+    selectAvatarByType: (callback, data, error) => {
+        let request = {
+            url: '/defaultAvatar/selectAvatarByType',
+            method: 'post',
+            data: data
+        };
+        ajax(callback, request, error);
+    },
+    //更新背景分类
+    updateProductionType: (callback, data, error) => {
+        let request = {
+            url: '/system/updateProductionType',
             method: 'post',
             data: data
         };

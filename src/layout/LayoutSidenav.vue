@@ -99,7 +99,7 @@
       </sidenav-menu>
       <sidenav-menu icon="ion ion-ios-pizza" :active="isMenuActive('/workclassify')" :open="isMenuOpen('/workclassify')">
         <template slot="link-text">作品分类管理</template>
-        <sidenav-router-link  to="/workclassify/workcontent" :exact="true">作品,背景音分类</sidenav-router-link>
+        <sidenav-router-link  to="/workclassify/workcontent" :exact="true">作品,背景音,头像分类</sidenav-router-link>
         <!-- <sidenav-router-link  to="/workclassify/workshow" :exact="true">作品分类展示</sidenav-router-link> -->
         <sidenav-router-link  to="/workclassify/bgmusicshow" :exact="true">背景音分类展示</sidenav-router-link>
         <sidenav-router-link  to="/workclassify/like" :exact="true">猜你喜欢</sidenav-router-link>

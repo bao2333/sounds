@@ -17,7 +17,19 @@
                     </div>
                     <input accept="image/jpeg,image/png" ref="iconFile" @change="iconFileChange" type="file" name="icon" style="display: none"/>
                 </div>
+                <div class="selectLabel">
+                    <el-button @click="selectLabel">选择标签</el-button>
+                    <span class="tag" v-show=" typeName "># {{ typeName }}</span>
+                </div>
                 <el-input size="mini" style="width:20%;margin:15px auto;display:block" placeholder="请输入消息标题" v-model="title"></el-input>
+                <h3>添加封面图</h3>
+                <div class="update_img">
+                    <div class="add_head" @click="selectIcon1" style="width: 300px; height: 150px;">
+                    <img :src="$oss.url + coverAddress" alt="" width="200" height="100">
+                    <i class="el-icon-plus avatar-uploader-icon" v-show="showIconCover"></i>
+                    </div>
+                    <input accept="image/jpeg,image/png" ref="iconFile1" @change="iconFileChange1" type="file" name="icon" style="display: none" />
+                </div>
                 <quill-editor ref="textEditor" v-model="articleContent" :options="editorOption" style="width:75%;margin:15px auto;height:auto;">
                 </quill-editor>
                 <div class="check_radio">
@@ -35,6 +47,19 @@
             </div>
 
         </section>
+
+
+        <el-dialog title="提示" :visible.sync="centerDialogVisible" width="30%" center>
+            <ul class="list">
+                <li v-for="(item, index) in labelArr" :key="index" @click="itemBtn(index, item.id, item.name)" :class="{ 'active' : index == num }">
+                        {{ item.name }}
+                </li>
+            </ul>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="centerDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="dermine">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -67,13 +92,20 @@ import * as OSS from 'ali-oss'
                     },
                     placeholder:'请输入文章内容 ...'
                 },
-                users:usersData,    //多选数据
+                users:usersData,     //多选数据
                 checkedUsers:[],    //多选数据
                 checkAll:false,
                 isIndeterminate: true,
                 ossurl:'',  //上传获取的oss资源
                 showIcon:true,  //上传+显示
                 title:'',   //标题
+                showIconCover: true,
+                centerDialogVisible: false,
+                labelArr: [],
+                typeName: '', //选择标签的名字
+                num: -1,   //记录下标
+                labelId: '', //标签的id
+                coverAddress: '' //封面图片的地址
             }
         },
         created(){
@@ -105,14 +137,30 @@ import * as OSS from 'ali-oss'
                     this.isIndeterminate = true
                 }
             },
+            //选择标签
+            selectLabel() {
+                this.centerDialogVisible = true
+                this.$api.find.selectHotLabel(data => {
+                    this.labelArr = data
+                    
+                })
+            },
+            itemBtn(index, id, name) {
+                this.num = index
+                this.labelId = id
+                this.typeName = name
+            },
+            dermine() {
+                this.centerDialogVisible = false
+            },
             addPushInformation(){
-                if(this.ossurl == '' || this.title == '' || this.articleContent == ''){
+                if(this.ossurl == '' || this.title == '' || this.articleContent == '' || this.typeName == '' || this.coverAddress == '' ){
                     this.$notify({
                       type:'warning',
                       message:'请完善信息后再进行添加！！',
                       title:'警告',
                     })
-                }else if(this.ossurl !== '' || this.title !== '' || this.articleContent !== ''){
+                }else if(this.ossurl !== '' || this.title !== '' || this.articleContent !== '' || this.typeName !== '' || this.coverAddress !== ""){
                     this.$api.oss.update(data => {
                         new OSS.Wrapper({
                             region: 'oss-cn-hangzhou',
@@ -127,9 +175,9 @@ import * as OSS from 'ali-oss'
                             })
                             this.$api.find.activity_add(()=>{
                                 this.$notify({
-                                type:'success',
-                                message:'添加推送消息成功，手机会有推送哦！',
-                                title:'成功',
+                                    type:'success',
+                                    message:'添加推送消息成功，手机会有推送哦！',
+                                    title:'成功',
                                 })
                                 //添加推送成功后跳转到推送消息页面
                                 this.$router.push({name:'informationActivity'})
@@ -137,7 +185,10 @@ import * as OSS from 'ali-oss'
                                 icon:this.ossurl,
                                 title:this.title,
                                 content:data.name,  //编译后的富文本
-                                peopleType:checkArr
+                                peopleType:checkArr,
+                                labelId: this.labelId,
+                                labelName: this.typeName,
+                                picture: this.coverAddress
                             })
                         }).catch(function (err) {
                             console.error('error: %j', err);
@@ -145,7 +196,7 @@ import * as OSS from 'ali-oss'
                     });
                 }
             },
-             //上传图片
+            //上传图片
             selectIcon(){
                 this.$refs.iconFile.click();
                 this.$refs.iconFile.value = null;   //相同图片上传第二次的时候会导致失效，每次上传之前清空value
@@ -179,6 +230,49 @@ import * as OSS from 'ali-oss'
                     },{});
                 };
                     image.src= data;
+                };
+                reader.readAsDataURL(file);
+            },
+            selectIcon1() {
+                this.$refs.iconFile1.click();
+                this.$refs.iconFile1.value = null; //相同图片上传第二次的时候会导致失效，每次上传之前清空value
+            },
+            iconFileChange1(e) {
+                let file = e.target.files[0];
+                if (!file.name.substring(file.name.lastIndexOf('.')) == '.png') {
+                return;
+                }
+                let reader = new FileReader();
+                reader.onload = e => {
+                let data = e.target.result;
+                //加载图片获取图片真实宽度和高度
+                let image = new Image();
+                image.onload = () => {
+                    let width = image.width;
+                    let height = image.height;
+                    // if( width <400 || height<400){
+                    //     this.$notify.error({
+                    //     title: '操作提示',
+                    //     message: '图片大小必须大于400*400！'
+                    //     });
+                    //     return;
+                    // }
+                    this.$api.oss.update(data => {
+                    new OSS.Wrapper({
+                        region: 'oss-cn-hangzhou',
+                        accessKeyId: data.accessKeyId,
+                        accessKeySecret: data.accessKeySecret,
+                        stsToken: data.securityToken,
+                        bucket: 'sounds-miyu'
+                    }).put(data.random, file).then(data => {
+                        this.coverAddress = data.name
+                        this.showIconCover = false // 上传成功之后隐藏加号icon
+                    }).catch(function (err) {
+                        console.error('error: %j', err);
+                    });
+                    }, {});
+                };
+                image.src = data;
                 };
                 reader.readAsDataURL(file);
             },
@@ -233,6 +327,36 @@ import * as OSS from 'ali-oss'
              }
          }
      }
+     .selectLabel {
+      width: 20%;
+      margin: 15px auto;
+      display: block;
+    }
+    
  }
-
+ .list {
+        display: flex;
+        flex-wrap: wrap;
+        li {
+            box-sizing: border-box;
+            margin: 6px;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .active {
+            background: orange;
+            color: #fff;
+        }
+    }
+ .tag {
+     float: right;
+     height: 40px;
+     box-sizing: border-box;
+     padding: 6px;
+     line-height: 26px;
+     border-radius: 6px;
+     border: 1px solid #ccc;
+ }
 </style>

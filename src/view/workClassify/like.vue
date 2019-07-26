@@ -79,15 +79,15 @@
         centerDialogVisible: false,
         workValue: '', //作品名
         workIntroduction: '', //作品简介
-        editorImg: '',
-        addAudio: '',
-        type: -1,
-        options: [],
+        editorImg: '',  //图片的地址
+        addAudio: '',   //音频地址
+        type: -1,   //判断当前的点击
+        options: [],   //当前作品分类的列表
         value: '', //作品
         audioTime: '', //音频时长
-        tableData: [],
-        sortValue: '',
-        beSortValue: ''
+        tableData: [], //喜欢数据的列表
+        sortValue: '',   //排序的值
+        beSortValue: ''  //被排序的值
       }
     },
     created() {
@@ -212,17 +212,11 @@
               return item
             }
           })
-          
-          console.log(sortItem)
-
           var beSortItem = this.tableData.filter(item => {
             if(item.id == this.beSortValue) {
               return item
             }
           })
-
-          console.log(beSortItem)
-
           this.$api.workClassify.updateGuessLikeSort(data => {
             this.getLikeData()
             this.sortValue = ''
@@ -238,8 +232,6 @@
             beId: this.beSortValue,
             beSort: beSortItem[0].sort
           })
-
-
         } else {
           this.$message.error('内容不能为空')
         }

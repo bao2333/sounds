@@ -6,7 +6,7 @@
     </el-breadcrumb>
     <div class="bg-box">
       <el-button @click="officalUpload" type="primary" plain size="mini">上传背景音乐</el-button>
-      <el-table :data="tableData" border style="width: 100%">
+      <el-table :data="tableData" border style="width: 100%; margin-top: 15px">
         <el-table-column prop="id" label="id" align="center">
         </el-table-column>
         <el-table-column prop="title" label="标题" align="center">
@@ -28,7 +28,7 @@
             <el-button @click="cancel(props.row)" size="mini" type="danger" plain>删除</el-button>
             </template>
         </el-table-column>
-        </el-table>
+      </el-table>
     </div>
 
     <!-- 上传背景音乐的弹窗 -->
@@ -45,7 +45,7 @@
         <img :src="$oss.url + editorImg" alt width="100%">
         <i class="el-icon-plus avatar-uploader-icon" v-show="plusShow"></i>
       </div>
-      <input accept="image/jpeg, image/png" ref="iconFile" @change="iconFileChange" type="file" name="icon"
+      <input accept="image/jpeg, image/png" ref="iconFile" @change="iconFileChange1" type="file" name="icon"
         style="display: none"> -->
       <!-- 上传音频 -->
       <div class="boxs">
@@ -71,19 +71,20 @@
         centerDialogVisible: false,
         workValue: '', //背景音乐标题
         workIntroduction: '', //作品简介
-        editorImg: '',     //背景图片
-        addAudio: '',   //背景音乐
-        type: -1,
-        options: [],
+        editorImg: '',     //背景图片的地址
+        addAudio: '',   //背景音乐的地址
+        type: -1,   //判断当前的点击
+        options: [],  //背景音乐分类的列表
         value: '', //作品
         audioTime: '', //音频时长
-        tableData: [],
+        tableData: [],  //展示数据的列表
       }
     },
     created() {
         this.getBgData()
     },
     methods: {
+      //官方上传内容
       officalUpload() {
         this.centerDialogVisible = true
         this.$api.workClassify.selectProductionType(data => {
@@ -95,7 +96,6 @@
       //获取背景音乐的数据
       getBgData() {
         this.$api.workClassify.selectBackgroundMusic(data => {
-            console.log(data)
           this.tableData = data
         })
       },
@@ -156,6 +156,41 @@
         };
         reader.readAsDataURL(file);
       },
+      // 上传图片
+      iconFileChange1(e) {
+        let file = e.target.files[0];
+        var fileLimit = file.size / 1024 < 500
+
+        if(!fileLimit) {
+          this.$message.error('上传图片大小不能超过 500KB!')
+        } else {
+          let reader = new FileReader();
+          reader.onload = e => {
+            let data = e.target.result;
+            this.$api.oss.update(data => {
+              new OSS.Wrapper({
+                  region: "oss-cn-hangzhou",
+                  accessKeyId: data.accessKeyId,
+                  accessKeySecret: data.accessKeySecret,
+                  stsToken: data.securityToken,
+                  bucket: 'sounds-miyu'
+                  // bucket: 'zhiyuan-hz'
+                })
+                .put(data.random, file)
+                .then(data => {
+                    this.editorImg = data.name; //头像上传
+                    this.plusShow = false;
+                })
+                .catch(function (err) {
+                  console.error("error: %j", err);
+                });
+            }, {});
+            // };
+            // image.src = data;
+          };
+          reader.readAsDataURL(file);
+        }
+      },
       //确定上传
       sure() {
         if (this.workValue && this.addAudio) {
@@ -215,11 +250,11 @@
         margin: 20px 0;
     }
     .el-dialog__wrapper {
-    .el-input {
-      width: 200px;
-      margin: 4px 0;
+      .el-input {
+        width: 200px;
+        margin: 4px 0;
+      }
     }
-  }
 
   .add_head {
     width: 100px;
