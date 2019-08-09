@@ -38,6 +38,13 @@ export default [{
         title: '滚动广播'
       },
       component: resolve => require(['@/view/information/rollingBroadcast'], resolve)
-    },
+    }, {
+      path: 'reply',
+      name: 'reply',
+      meta: {
+        title: '消息回复'
+      },
+      component: resolve => require(['@/view/information/replyMessage'], resolve)
+    }
 ]
 }]

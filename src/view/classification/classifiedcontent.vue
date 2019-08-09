@@ -556,6 +556,7 @@
                 })
                 .put(data.random, file)
                 .then(data => {
+                //#region 
                   // if (this.type == 0) {
                   //   this.editorImg = data.name
                   //   this.plusShow = false
@@ -597,6 +598,7 @@
                   //     })
                   //   }
                   // } 
+                //#endregion
                   if (this.type == 1) {
                     this.addAudio = data.name
                     var firstId = this.PrimaryClassification[this.firstnum].id
@@ -636,7 +638,7 @@
 
 
         
-
+      //#region 
         // let reader = new FileReader();
         // reader.onload = e => {
         //   let data = e.target.result;
@@ -727,6 +729,7 @@
         //   // image.src = data;
         // };
         // reader.readAsDataURL(file);
+      //#endregion
       },
       iconFileChange1(e) {
         let file = e.target.files[0];

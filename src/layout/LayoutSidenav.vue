@@ -49,6 +49,7 @@
         <template slot="link-text">消息管理</template>
         <sidenav-router-link  to="/information/official" :exact="true">官方消息</sidenav-router-link>
         <sidenav-router-link  to="/information/activity" :exact="true">推送活动</sidenav-router-link>
+        <sidenav-router-link  to="/information/reply" :exact="true">消息回复</sidenav-router-link>
         <sidenav-router-link  to="/information/activity" :exact="true"  v-if="$route.name == 'informationAdd'">新增活动</sidenav-router-link>
         <sidenav-router-link  to="/information/rollingBroadcast" :exact="true">滚动广播</sidenav-router-link>
       </sidenav-menu>
