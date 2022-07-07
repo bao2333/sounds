@@ -25,7 +25,7 @@
     "ladda": "~2.0.1",
     "less": "^3.8.1",
     "less-loader": "^4.1.0",
-    "moment": "~2.22.1",
+    "moment": "~2.29.4",
     "nouislider": "~11.1.0",
     "numeral": "~2.0.6",
     "perfect-scrollbar": "~1.4.0",
